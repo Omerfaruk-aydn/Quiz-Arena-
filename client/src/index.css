@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-background text-slate-50 font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.15), transparent),
+      radial-gradient(ellipse 60% 50% at 80% 110%, rgba(236, 72, 153, 0.12), transparent);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-primary/40 text-white;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/60;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-surface/70 backdrop-blur-xl border border-border rounded-2xl;
+  }
+
+  .glass-2 {
+    @apply bg-surface-2/80 backdrop-blur-xl border border-border rounded-2xl;
+  }
+
+  .neon-text {
+    text-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+  }
+
+  .pin-display {
+    @apply font-mono text-5xl md:text-6xl font-bold tracking-[0.4em] text-primary neon-text;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary via-accent-pink to-accent-amber bg-clip-text text-transparent;
+  }
+
+  .btn-focus {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+}
+
+@layer utilities {
+  .no-tap {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* Tiptap Rich Text Editor */
+.prose-editor {
+  @apply px-4 py-3 text-sm text-white outline-none;
+}
+.prose-editor:empty::before {
+  content: attr(data-placeholder);
+  @apply text-text-muted/60;
+}
+.prose-editor p {
+  margin: 0.25em 0;
+}
+.prose-editor ul,
+.prose-editor ol {
+  @apply pl-5 my-1;
+}
+.prose-editor ul {
+  list-style: disc;
+}
+.prose-editor ol {
+  list-style: decimal;
+}
+.prose-editor a {
+  @apply text-primary underline;
+}
+.prose-editor strong {
+  @apply font-bold text-white;
+}
+.prose-editor em {
+  font-style: italic;
+}
+.prose-editor .katex {
+  font-size: 1.1em;
+}
+.prose-editor .katex-display {
+  @apply my-2 text-center;
+}

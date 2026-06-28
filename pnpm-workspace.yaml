@@ -1,0 +1,14 @@
+packages:
+  - "client"
+  - "server"
+  - "shared"
+
+allowBuilds:
+  '@prisma/engines': true
+  esbuild: set this to true or false
+  prisma: true
+  sharp: set this to true or false
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp

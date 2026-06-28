@@ -1,0 +1,7 @@
+{
+  "installCommand": "echo 'Skipping default install'",
+  "buildCommand": "bash build-vercel.sh",
+  "outputDirectory": "client/dist",
+  "framework": "vite",
+  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
+}

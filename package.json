@@ -1,0 +1,41 @@
+{
+  "name": "quizarena",
+  "version": "0.1.0",
+  "private": true,
+  "description": "QuizArena — Full-Stack Multiplayer Quiz Platform (Kahoot Clone)",
+  "engines": {
+    "node": "24.x"
+  },
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:client": "pnpm --filter @quizarena/client dev",
+    "dev:server": "pnpm --filter @quizarena/server dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "lint:fix": "pnpm -r run lint:fix",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "test:e2e": "playwright test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "eslint": "^9.10.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.2",
+    "typescript-eslint": "^8.8.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  teacher
+  student
+}
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+enum QuestionType {
+  multiple_choice
+  true_false
+  image_choice
+}
+
+enum AnswerColor {
+  red
+  blue
+  yellow
+  green
+}
+
+enum GameStatus {
+  lobby
+  starting
+  active
+  question_results
+  leaderboard
+  finished
+}
+
+model User {
+  id                     String   @id @default(cuid())
+  name                   String   @db.VarChar(60)
+  email                  String   @unique @db.VarChar(255)
+  password               String
+  role                   UserRole @default(teacher)
+
+  avatarUrl              String   @default("")
+  avatarPublicId         String   @default("")
+
+  refreshToken           String   @default("")
+  isEmailVerified        Boolean  @default(false)
+  emailVerificationToken String   @default("")
+  passwordResetToken     String   @default("")
+  passwordResetExpires   DateTime?
+
+  statsTotalGamesHosted      Int @default(0)
+  statsTotalGamesPlayed      Int @default(0)
+  statsTotalQuestionsAnswered Int @default(0)
+  statsCorrectAnswers        Int @default(0)
+  statsHighScore             Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quizzes            Quiz[]
+  hostedSessions     GameSession[]
+  gameParticipants   GameParticipant[]
+
+  @@index([email])
+}
+
+model Quiz {
+  id          String     @id @default(cuid())
+  title       String     @db.VarChar(100)
+  description String     @default("") @db.VarChar(500)
+  creatorId   String
+  category    String     @default("Genel") @db.VarChar(100)
+  difficulty  Difficulty @default(medium)
+  tags        String[]
+  isPublic    Boolean    @default(false)
+
+  coverImageUrl    String @default("")
+  coverImagePublicId String @default("")
+
+  settingsDefaultTimeLimit  Int  @default(30)
+  settingsShowAnswerAfterEach Boolean @default(true)
+  settingsRandomizeQuestions  Boolean @default(false)
+  settingsRandomizeAnswers   Boolean @default(false)
+  settingsMaxParticipants    Int  @default(0)
+
+  statsTimesPlayed    Int @default(0)
+  statsAverageScore   Int @default(0)
+  statsTotalParticipants Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creator         User              @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  questions       Question[]
+  gameSessions    GameSession[]
+
+  @@index([creatorId])
+  @@index([isPublic])
+  @@index([title, description])
+}
+
+model Question {
+  id         String       @id @default(cuid())
+  quizId     String
+  type       QuestionType @default(multiple_choice)
+  text       String       @db.VarChar(200)
+  imageUrl   String       @default("")
+  imagePublicId String     @default("")
+  timeLimit  Int          @default(30)
+  points     Int          @default(1000)
+  explanation String      @default("")
+  order      Int          @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quiz        Quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers     Answer[]
+  gameAnswers GameAnswer[]
+  gameSessionQuestionOrders GameSession[] @relation("QuestionOrder")
+
+  @@index([quizId, order])
+}
+
+model Answer {
+  id         String      @id @default(cuid())
+  questionId String
+  text       String      @db.VarChar(75)
+  isCorrect  Boolean     @default(false)
+  color      AnswerColor
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model GameSession {
+  id                   String     @id @default(cuid())
+  pin                  String     @unique @db.VarChar(6)
+  quizId               String
+  hostId               String
+  status               GameStatus @default(lobby)
+  currentQuestionIndex Int        @default(0)
+  startedAt            DateTime?
+  finishedAt           DateTime?
+  duration             Int        @default(0)
+
+  settingsTimeLimit            Int     @default(30)
+  settingsShowAnswerAfterEach  Boolean @default(true)
+  settingsRandomizeQuestions   Boolean @default(false)
+  settingsRandomizeAnswers     Boolean @default(false)
+  settingsMaxParticipants      Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quiz             Quiz              @relation(fields: [quizId], references: [id])
+  host             User              @relation(fields: [hostId], references: [id])
+  participants     GameParticipant[]
+  gameAnswers      GameAnswer[]
+  questionOrder    Question[]        @relation("QuestionOrder")
+
+  @@index([pin])
+  @@index([status])
+}
+
+model GameParticipant {
+  id           String  @id @default(cuid())
+  sessionId    String
+  userId       String?
+  nickname     String  @db.VarChar(30)
+  avatarEmoji  String  @default("🦊")
+  avatarColor  String  @default("#7C3AED")
+  socketId     String  @default("")
+  totalScore   Int     @default(0)
+  rank         Int     @default(0)
+  streak       Int      @default(0)
+  isConnected  Boolean  @default(true)
+  joinedAt     DateTime @default(now())
+
+  jokersUsedFiftyFifty    Boolean @default(false)
+  jokersUsedPhoneAFriend  Boolean @default(false)
+  jokersUsedSkipQuestion  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session    GameSession  @relation(fields: [sessionId], references: [id])
+  user       User?        @relation(fields: [userId], references: [id])
+  answers    GameAnswer[]
+
+  @@unique([sessionId, nickname])
+  @@index([sessionId])
+}
+
+model GameAnswer {
+  id              String  @id @default(cuid())
+  sessionId       String
+  participantId   String
+  questionId      String
+  selectedAnswer  Int?
+  isCorrect       Boolean @default(false)
+  responseTime    Int     @default(0)
+  pointsEarned    Int     @default(0)
+  answeredAt      DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  session     GameSession     @relation(fields: [sessionId], references: [id])
+  participant GameParticipant @relation(fields: [participantId], references: [id])
+  question    Question        @relation(fields: [questionId], references: [id])
+
+  @@unique([sessionId, participantId, questionId])
+  @@index([sessionId])
+  @@index([participantId])
+}
