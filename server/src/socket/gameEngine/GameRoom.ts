@@ -347,17 +347,19 @@ export class GameRoom {
       answerStats: stats,
     });
 
+    const leaderboard = this.buildLeaderboard(correctAnswer);
+
     for (const p of this.players.values()) {
       const isCorrect = p.selectedAnswer === correctAnswer;
+      const rank = leaderboard.find((e) => e.participantId === p.participantId)?.rank ?? 0;
       this.io.to(p.socketId).emit('game:player_result', {
         isCorrect,
         pointsEarned: p.lastPointsEarned,
         totalScore: p.totalScore,
-        rank: 0,
+        rank,
       });
     }
 
-    const leaderboard = this.buildLeaderboard(correctAnswer);
     this.io.to(`game:${this.pin}`).emit('game:leaderboard', { leaderboard });
     this.state.force('leaderboard');
 
