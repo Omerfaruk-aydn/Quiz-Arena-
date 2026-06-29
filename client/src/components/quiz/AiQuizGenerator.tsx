@@ -123,7 +123,9 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
               <p className="text-sm font-medium flex items-center gap-1">
                 <ImageIcon size={14} /> Görselli Sorular
               </p>
-              <p className="text-xs text-text-muted">AI görsel ekler</p>
+              <p className="text-xs text-text-muted">
+                Bayrak, ünlü yapı, kişi, hayvan, yemek, sanat eseri ve daha fazlası
+              </p>
             </div>
           </label>
         </div>
@@ -196,9 +198,20 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
                           ))}
                         </div>
                         {q.imageUrl && (
-                          <p className="mt-1 text-xs text-primary flex items-center gap-1">
-                            <ImageIcon size={12} /> Görsel mevcut
-                          </p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <img
+                              src={q.imageUrl}
+                              alt="Soru görseli"
+                              className="h-12 w-16 rounded-lg border border-border object-cover"
+                              loading="lazy"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                            <p className="text-xs text-primary flex items-center gap-1">
+                              <ImageIcon size={12} /> Görsel mevcut
+                            </p>
+                          </div>
                         )}
                       </div>
                       <span className="shrink-0 text-xs text-text-muted">
