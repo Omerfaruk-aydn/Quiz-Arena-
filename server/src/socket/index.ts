@@ -39,8 +39,8 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
   >(httpServer, {
     cors: { origin: config.clientUrl, credentials: true },
     maxHttpBufferSize: 1e6,
-    pingInterval: 25000,
-    pingTimeout: 30000,
+    pingInterval: 15000,
+    pingTimeout: 20000,
   });
 
   const gameNs: Namespace<
@@ -94,6 +94,14 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
       void handleDisconnect(socket);
     });
   });
+
+  // Application-level keepalive: send to all active rooms every 15s
+  // to prevent Render proxy from dropping idle WebSocket connections
+  setInterval(() => {
+    for (const [pin] of rooms) {
+      gameNs.to(`game:${pin}`).emit('game:keepalive', { ts: Date.now() });
+    }
+  }, 15000);
 
   return gameNs;
 }

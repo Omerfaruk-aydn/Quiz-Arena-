@@ -215,6 +215,9 @@ export class GameRoom {
   }
 
   async startGame(): Promise<void> {
+    logger.info(
+      `[GameRoom ${this.pin}] startGame: ${this.questions.length} questions, difficulty=${this.difficulty}`,
+    );
     this.state.transition('starting');
     await prisma.gameSession.update({
       where: { id: this.sessionId },
@@ -223,6 +226,7 @@ export class GameRoom {
     await this.saveStateToRedis();
     this.io.to(`game:${this.pin}`).emit('game:starting', { countdown: 3 });
     setTimeout(() => {
+      logger.info(`[GameRoom ${this.pin}] Countdown finished, starting first question`);
       this.state.force('active');
       void prisma.gameSession.update({
         where: { id: this.sessionId },
@@ -236,9 +240,13 @@ export class GameRoom {
   startNextQuestion(): void {
     if (this.isFinished) return;
     if (this.currentIndex >= this.questions.length) {
+      logger.info(`[GameRoom ${this.pin}] No more questions, finishing game`);
       void this.finishGame();
       return;
     }
+    logger.info(
+      `[GameRoom ${this.pin}] Starting question ${this.currentIndex}/${this.questions.length}, timeLimit=${getTimeLimitForDifficulty(this.difficulty)}s, players=${this.players.size}`,
+    );
     this.isEndingQuestion = false;
     if (this.minQuestionTimeout) {
       clearTimeout(this.minQuestionTimeout);
@@ -359,6 +367,9 @@ export class GameRoom {
       }
       return;
     }
+    logger.info(
+      `[GameRoom ${this.pin}] endQuestion: question ${this.currentIndex}, state=${this.state.get()}`,
+    );
     this.isEndingQuestion = true;
     if (this.minQuestionTimeout) {
       clearTimeout(this.minQuestionTimeout);
@@ -457,6 +468,9 @@ export class GameRoom {
 
   private async finishGame(): Promise<void> {
     if (this.isFinished) return;
+    logger.info(
+      `[GameRoom ${this.pin}] finishGame: ${this.currentIndex + 1}/${this.questions.length} questions`,
+    );
     this.isFinished = true;
     if (this.advanceTimeout) {
       clearTimeout(this.advanceTimeout);

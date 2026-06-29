@@ -48,6 +48,7 @@ export interface ServerToClientEvents {
   'game:started': (payload: { pin: string; status: GameStatus }) => void;
   'game:joker_result': (payload: { result: JokerResult }) => void;
   'game:phone_a_friend_hint': (payload: { hint: string }) => void;
+  'game:keepalive': (payload: { ts: number }) => void;
 }
 
 export interface ClientToServerEvents {

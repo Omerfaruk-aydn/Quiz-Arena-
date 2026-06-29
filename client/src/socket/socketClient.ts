@@ -30,8 +30,8 @@ export function getSocket(): QuizSocket {
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 3000,
-    pingInterval: 25000,
-    pingTimeout: 30000,
+    pingInterval: 15000,
+    pingTimeout: 20000,
   };
   socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, socketOptions);
 
