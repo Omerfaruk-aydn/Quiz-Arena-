@@ -8,7 +8,7 @@ import { AuthGuard } from './components/auth/AuthGuard';
 import { AppLayout } from './components/layout/AppLayout';
 import { GameLayout } from './components/layout/GameLayout';
 import { useAuth } from './hooks/useAuth';
-import { ROUTES } from './lib/constants';
+import { ROUTES, API_URL } from './lib/constants';
 import { TOAST_DURATION } from './lib/constants';
 
 const LandingPage = lazy(() =>
@@ -77,7 +77,26 @@ function PageFallback() {
 function Bootstrap() {
   const { bootstrap } = useAuth();
   useEffect(() => {
-    void bootstrap();
+    // Warm up Render server (cold start ~30s)
+    const warmup = async () => {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10_000);
+        await fetch(`${API_URL}/health`, { signal: controller.signal });
+        clearTimeout(timeout);
+      } catch {
+        // Silently retry — server might still be sleeping
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 20_000);
+          await fetch(`${API_URL}/health`, { signal: controller.signal });
+          clearTimeout(timeout);
+        } catch {
+          // Give up, bootstrap will handle it
+        }
+      }
+    };
+    void warmup().finally(() => bootstrap());
   }, [bootstrap]);
   return null;
 }

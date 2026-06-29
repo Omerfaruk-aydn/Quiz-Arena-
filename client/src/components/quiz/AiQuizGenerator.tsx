@@ -32,7 +32,7 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
       setPreview(data.questions);
       toast.success(`${data.questions.length} soru üretildi!`);
     },
-    onError: () => toast.error('AI soru üretimi başarısız'),
+    onError: () => {}, // API interceptor zaten toast gösterir
   });
 
   const handleAdd = () => {
