@@ -57,7 +57,7 @@ export function QuizPreview({ values, onClose }: QuizPreviewProps) {
             <p className="text-xl font-semibold">{q.text}</p>
           </motion.div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {q.answers.map((a, i) => {
+            {(q.answers ?? []).map((a, i) => {
               const color = a.color as keyof typeof ANSWER_COLORS;
               return (
                 <div

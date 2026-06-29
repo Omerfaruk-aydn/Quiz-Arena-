@@ -51,7 +51,7 @@ export function toClientQuestion(q: AnyObj): AnyObj {
     ...rest,
     _id: id,
     image: imageUrl ? { url: imageUrl, publicId: imagePublicId } : null,
-    answers: q.answers?.map((a: AnyObj) => ({
+    answers: (q.answers ?? []).map((a: AnyObj) => ({
       _id: a.id,
       text: a.text,
       isCorrect: a.isCorrect,

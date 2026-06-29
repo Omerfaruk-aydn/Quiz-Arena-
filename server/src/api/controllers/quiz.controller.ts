@@ -47,7 +47,7 @@ export const listPublicQuizzes = asyncHandler(async (req: Request, res: Response
 export const getQuiz = asyncHandler(async (req: Request, res: Response) => {
   const quiz = await prisma.quiz.findUnique({
     where: { id: req.params.id },
-    include: { questions: { orderBy: { order: 'asc' } } },
+    include: { questions: { orderBy: { order: 'asc' }, include: { answers: true } } },
   });
   if (!quiz) throw ApiError.notFound('Quiz bulunamadı', 'QUIZ_NOT_FOUND');
   const isOwner = quiz.creatorId === req.user!._id;
@@ -158,7 +158,7 @@ export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
 export const duplicateQuiz = asyncHandler(async (req: Request, res: Response) => {
   const original = await prisma.quiz.findUnique({
     where: { id: req.params.id },
-    include: { questions: { orderBy: { order: 'asc' } } },
+    include: { questions: { orderBy: { order: 'asc' }, include: { answers: true } } },
   });
   if (!original) throw ApiError.notFound('Quiz bulunamadı', 'QUIZ_NOT_FOUND');
 

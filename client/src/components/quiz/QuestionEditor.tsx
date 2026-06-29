@@ -41,18 +41,18 @@ export function QuestionEditor({
   const update = (patch: Partial<Question>) => onChange({ ...question, ...patch });
 
   const updateAnswer = (i: number, patch: Partial<AnswerOptionType>) => {
-    const answers = question.answers.map((a, idx) => (idx === i ? { ...a, ...patch } : a));
+    const answers = (question.answers ?? []).map((a, idx) => (idx === i ? { ...a, ...patch } : a));
     onChange({ ...question, answers });
   };
 
   const setCorrect = (i: number) => {
-    const answers = question.answers.map((a, idx) => ({ ...a, isCorrect: idx === i }));
+    const answers = (question.answers ?? []).map((a, idx) => ({ ...a, isCorrect: idx === i }));
     onChange({ ...question, answers });
   };
 
   const addAnswer = () => {
-    if (question.answers.length >= 4) return;
-    const used = new Set(question.answers.map((a) => a.color));
+    if ((question.answers ?? []).length >= 4) return;
+    const used = new Set((question.answers ?? []).map((a) => a.color));
     const color = COLORS.find((c) => !used.has(c)) ?? 'green';
     onChange({
       ...question,
@@ -61,8 +61,8 @@ export function QuestionEditor({
   };
 
   const removeAnswer = (i: number) => {
-    if (question.answers.length <= 2) return;
-    onChange({ ...question, answers: question.answers.filter((_, idx) => idx !== i) });
+    if ((question.answers ?? []).length <= 2) return;
+    onChange({ ...question, answers: (question.answers ?? []).filter((_, idx) => idx !== i) });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +133,7 @@ export function QuestionEditor({
       <div className="mt-4">
         <Label>Cevap seçenekleri</Label>
         <div className="space-y-2">
-          {question.answers.map((a, i) => (
+          {(question.answers ?? []).map((a, i) => (
             <div key={i} className="flex items-center gap-2">
               <button
                 type="button"
@@ -156,7 +156,7 @@ export function QuestionEditor({
                 maxLength={75}
                 className="flex-1"
               />
-              {question.answers.length > 2 && (
+              {(question.answers ?? []).length > 2 && (
                 <Button
                   size="icon"
                   variant="ghost"
@@ -170,7 +170,7 @@ export function QuestionEditor({
             </div>
           ))}
         </div>
-        {question.answers.length < 4 && (
+        {(question.answers ?? []).length < 4 && (
           <Button size="sm" variant="ghost" className="mt-2" onClick={addAnswer} type="button">
             <Plus size={14} /> Şık ekle
           </Button>
