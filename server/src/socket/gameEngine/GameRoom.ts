@@ -64,6 +64,9 @@ export class GameRoom {
   private isEndingQuestion = false;
   private isFinished = false;
   private advanceTimeout: NodeJS.Timeout | null = null;
+  private questionStartedAt = 0;
+  private minQuestionTimeout: NodeJS.Timeout | null = null;
+  private readonly MIN_QUESTION_MS = 3000;
 
   constructor(
     io: QuizServer,
@@ -127,6 +130,18 @@ export class GameRoom {
   }
 
   async joinPlayer(socket: QuizSocket, nickname: string, emoji: string): Promise<ParticipantDTO> {
+    const existing = this.players.get(socket.id);
+    if (existing) {
+      existing.isConnected = true;
+      socket.join(`game:${this.pin}`);
+      socket.join(`game:${this.pin}:players`);
+      socket.data.role = 'player';
+      socket.data.pin = this.pin;
+      socket.data.participantId = existing.participantId;
+      socket.data.nickname = existing.nickname;
+      return this.toDTO(existing);
+    }
+
     const color = generateColorFor(nickname, this.players.size);
     const doc = await addParticipant(this.sessionId, {
       nickname,
@@ -225,6 +240,11 @@ export class GameRoom {
       return;
     }
     this.isEndingQuestion = false;
+    if (this.minQuestionTimeout) {
+      clearTimeout(this.minQuestionTimeout);
+      this.minQuestionTimeout = null;
+    }
+    this.questionStartedAt = Date.now();
     const q = this.questions[this.currentIndex];
     for (const p of this.players.values()) {
       p.answered = false;
@@ -311,13 +331,28 @@ export class GameRoom {
     this.io.to(`game:${this.pin}:host`).emit('host:answer_distribution', { distribution });
 
     if (answeredCount === this.players.size) {
-      await this.endQuestion();
+      const elapsed = Date.now() - this.questionStartedAt;
+      if (elapsed < this.MIN_QUESTION_MS) {
+        if (!this.minQuestionTimeout) {
+          const delay = this.MIN_QUESTION_MS - elapsed;
+          this.minQuestionTimeout = setTimeout(() => {
+            this.minQuestionTimeout = null;
+            void this.endQuestion();
+          }, delay);
+        }
+      } else {
+        await this.endQuestion();
+      }
     }
   }
 
   private async endQuestion(): Promise<void> {
     if (this.isEndingQuestion) return;
     this.isEndingQuestion = true;
+    if (this.minQuestionTimeout) {
+      clearTimeout(this.minQuestionTimeout);
+      this.minQuestionTimeout = null;
+    }
     if (this.timer) {
       this.timer.stop();
       this.timer = null;
@@ -516,7 +551,18 @@ export class GameRoom {
 
       const answeredCount = this.getPlayersArray().filter((p) => p.answered).length;
       if (answeredCount === this.players.size) {
-        await this.endQuestion();
+        const elapsed = Date.now() - this.questionStartedAt;
+        if (elapsed < this.MIN_QUESTION_MS) {
+          if (!this.minQuestionTimeout) {
+            const delay = this.MIN_QUESTION_MS - elapsed;
+            this.minQuestionTimeout = setTimeout(() => {
+              this.minQuestionTimeout = null;
+              void this.endQuestion();
+            }, delay);
+          }
+        } else {
+          await this.endQuestion();
+        }
       }
     }
   }
