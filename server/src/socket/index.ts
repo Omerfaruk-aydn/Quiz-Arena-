@@ -7,7 +7,6 @@ import type {
   SocketData,
 } from '@quizarena/shared';
 import { SOCKET_NAMESPACE, RATE_LIMITS } from '@quizarena/shared';
-import { config } from '../config/index.js';
 import type { GameRoom } from './gameEngine/GameRoom.js';
 import { logger } from '../utils/logger.js';
 import { verifyTokenForSocket } from './socketAuth.js';
@@ -37,7 +36,7 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
     InterServerEvents,
     SocketData
   >(httpServer, {
-    cors: { origin: config.clientUrl, credentials: true },
+    cors: { origin: true, credentials: true },
     maxHttpBufferSize: 1e6,
     pingInterval: 15000,
     pingTimeout: 20000,
