@@ -21,7 +21,7 @@ export function getSocket(): QuizSocket {
     return socket;
   }
   const socketOptions: Record<string, unknown> = {
-    transports: ['polling', 'websocket'],
+    transports: ['polling'],
     auth: (cb: (data: Record<string, unknown>) => void) => {
       const t = localStorage.getItem(STORAGE_KEYS.accessToken);
       cb(t ? { token: t } : {});
