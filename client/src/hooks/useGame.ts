@@ -12,6 +12,7 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
   const { socket, isConnected } = useSocket();
   const store = useGameStore();
   const toastShown = useRef(false);
+  const prevPinRef = useRef<string | null>(null);
   const [jokers, setJokers] = useState<JokerState>({
     fiftyFifty: true,
     phoneAFriend: true,
@@ -21,6 +22,14 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
 
   useEffect(() => {
     if (!socket || !pin) return;
+
+    if (prevPinRef.current !== pin) {
+      store.reset();
+      prevPinRef.current = pin;
+      setJokers({ fiftyFifty: true, phoneAFriend: true, skipQuestion: true });
+      setPhoneAFriendHint(null);
+    }
+
     store.setPin(pin);
     store.setRole(role);
 
