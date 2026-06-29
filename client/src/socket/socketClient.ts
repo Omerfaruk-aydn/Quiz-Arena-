@@ -1,4 +1,5 @@
 import { io, type Socket } from 'socket.io-client';
+import { SOCKET_NAMESPACE } from '@quizarena/shared';
 import type { ClientToServerEvents, ServerToClientEvents } from '../types';
 import { SOCKET_URL, STORAGE_KEYS } from '../lib/constants';
 
@@ -20,7 +21,7 @@ export function getSocket(): QuizSocket {
     return socket;
   }
   const token = localStorage.getItem(STORAGE_KEYS.accessToken);
-  socket = io(SOCKET_URL, {
+  socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, {
     transports: ['websocket'],
     auth: token ? { token } : {},
     reconnection: true,
