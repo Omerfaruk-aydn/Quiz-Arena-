@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGame } from '../../hooks/useGame';
@@ -8,15 +8,27 @@ import { GameQuestion } from '../../components/game/GameQuestion';
 import { GameLeaderboard } from '../../components/game/GameLeaderboard';
 import { GameResults } from '../../components/game/GameResults';
 import { CountdownStart } from '../../components/game/CountdownTimer';
+import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES } from '../../lib/constants';
 
 export function GameHostPage() {
   const { pin } = useParams<{ pin: string }>();
   const navigate = useNavigate();
-  const { store, isConnected, startGame, nextQuestion, endGame, kickPlayer, sendChat, leaveLobby } =
-    useGame(pin ?? null, 'host');
+  const {
+    store,
+    isConnected,
+    startGame,
+    endGame,
+    kickPlayer,
+    sendChat,
+    leaveLobby,
+    submitAnswer,
+    useJoker,
+    jokers,
+  } = useGame(pin ?? null, 'host');
   const [quizTitle, setQuizTitle] = useState<string | undefined>();
   const [countdown, setCountdown] = useState(0);
+  const questionStartRef = useRef<number>(Date.now());
 
   useEffect(() => {
     if (!pin) return;
@@ -26,11 +38,22 @@ export function GameHostPage() {
       .catch(() => undefined);
   }, [pin]);
 
+  useEffect(() => {
+    if (store.status === 'active' && store.currentQuestion) {
+      questionStartRef.current = Date.now();
+    }
+  }, [store.currentQuestion, store.status]);
+
   const status = store.status;
 
   const handleStart = () => {
     setCountdown(3);
     startGame();
+  };
+
+  const handlePick = (index: number) => {
+    const responseTime = Date.now() - questionStartRef.current;
+    submitAnswer(index, responseTime);
   };
 
   return (
@@ -74,26 +97,29 @@ export function GameHostPage() {
               answeredCount={store.answeredCount}
               total={store.participants.length}
               distribution={store.answerDistribution}
-              onSkip={() => store.currentQuestion && undefined}
               onEnd={() => {
                 void endGame();
                 navigate(ROUTES.dashboard);
               }}
             />
+            <div className="p-4">
+              <JokerBar jokers={jokers} onUseJoker={useJoker} disabled={store.hasAnswered} />
+            </div>
             <GameQuestion
               question={store.currentQuestion}
               index={store.questionIndex}
               total={store.totalQuestions}
               remaining={store.remainingTime}
               timeLimit={store.timeLimit}
-              selectedAnswer={null}
-              correctAnswer={store.correctAnswer}
-              hasAnswered={false}
+              selectedAnswer={store.selectedAnswer}
+              correctAnswer={null}
+              hasAnswered={store.hasAnswered}
               showResult={false}
               explanation=""
               answeredCount={store.answeredCount}
               myResult={null}
-              onPick={() => undefined}
+              onPick={handlePick}
+              fiftyFiftyRemoved={store.fiftyFiftyRemoved}
             />
           </motion.div>
         )}
@@ -117,39 +143,31 @@ export function GameHostPage() {
               total={store.totalQuestions}
               remaining={0}
               timeLimit={store.timeLimit}
-              selectedAnswer={null}
+              selectedAnswer={store.selectedAnswer}
               correctAnswer={store.correctAnswer}
               hasAnswered={true}
               showResult={true}
               explanation={store.explanation}
               answeredCount={store.answeredCount}
-              myResult={null}
+              myResult={store.myResult}
               onPick={() => undefined}
             />
-            <div className="flex justify-center pb-6">
-              <button
-                onClick={nextQuestion}
-                className="rounded-xl bg-primary px-8 py-3 font-semibold text-white shadow-glow active:scale-95 btn-focus"
-              >
-                Sonraki Soru →
-              </button>
-            </div>
+            <p className="pb-6 text-center text-sm text-text-muted">Sıralama hazırlanıyor…</p>
           </motion.div>
         )}
 
-        {/* Leaderboard (host auto-advances via next_question) */}
+        {/* Leaderboard (auto-advances) */}
         {status === 'leaderboard' && (
           <motion.div key="leaderboard" className="flex flex-1 flex-col">
             <GameLeaderboard
               leaderboard={store.leaderboard}
               isFinal={store.questionIndex + 1 >= store.totalQuestions}
-              onContinue={nextQuestion}
-              continueLabel={
-                store.questionIndex + 1 >= store.totalQuestions
-                  ? 'Sonuçları Göster'
-                  : 'Sonraki Soru'
-              }
             />
+            <p className="pb-6 text-center text-sm text-text-muted">
+              {store.questionIndex + 1 >= store.totalQuestions
+                ? 'Sonuçlar hazırlanıyor…'
+                : 'Sonraki soru yükleniyor…'}
+            </p>
           </motion.div>
         )}
 
@@ -189,17 +207,14 @@ function HostBar({
   answeredCount,
   total,
   distribution,
-  onSkip,
   onEnd,
 }: {
   pin: string;
   answeredCount: number;
   total: number;
   distribution: number[];
-  onSkip?: () => void;
   onEnd: () => void;
 }) {
-  void onSkip;
   return (
     <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-8">
       <div className="flex items-center gap-4">

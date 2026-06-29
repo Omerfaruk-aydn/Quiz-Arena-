@@ -158,11 +158,15 @@ export class GameRoom {
     return this.toDTO(player);
   }
 
-  joinHost(socket: QuizSocket): void {
-    socket.join(`game:${this.pin}`);
+  async joinHostAsPlayer(
+    socket: QuizSocket,
+    nickname: string,
+    emoji: string,
+  ): Promise<ParticipantDTO> {
+    const participant = await this.joinPlayer(socket, nickname, emoji);
     socket.join(`game:${this.pin}:host`);
     socket.data.role = 'host';
-    socket.data.pin = this.pin;
+    return participant;
   }
 
   private toDTO(p: PlayerState): ParticipantDTO {
@@ -340,6 +344,16 @@ export class GameRoom {
     const leaderboard = this.buildLeaderboard(correctAnswer);
     this.io.to(`game:${this.pin}`).emit('game:leaderboard', { leaderboard });
     this.state.force('leaderboard');
+
+    if (this.currentIndex + 1 >= this.questions.length) {
+      setTimeout(() => {
+        if (this.state.is('leaderboard')) void this.finishGame();
+      }, 8000);
+    } else {
+      setTimeout(() => {
+        if (this.state.is('leaderboard')) this.nextQuestion();
+      }, 8000);
+    }
   }
 
   private buildLeaderboard(correctAnswer: number): LeaderboardEntry[] {

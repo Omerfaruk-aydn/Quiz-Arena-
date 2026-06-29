@@ -57,7 +57,12 @@ export function connectLobbyHandler(io: QuizServer, socket: QuizSocket): void {
       });
       await room.loadQuiz(session.quizId);
       rooms.set(session.pin, room);
-      room.joinHost(socket);
+      const user = await prisma.user.findUnique({ where: { id: socket.data.userId ?? '' } });
+      const participant = await room.joinHostAsPlayer(socket, user?.name ?? 'Host', '👑');
+      io.to(`game:${session.pin}`).emit('lobby:player_joined', {
+        participant,
+        totalCount: room.participantCount(),
+      });
       ack?.({ ok: true, pin: session.pin });
     } catch (err) {
       const e: { code?: string; message?: string } = err as { code?: string; message?: string };
@@ -83,7 +88,12 @@ export function connectLobbyHandler(io: QuizServer, socket: QuizSocket): void {
         await room.loadQuiz(session.quizId);
         rooms.set(pin, room);
       }
-      room.joinHost(socket);
+      const user = await prisma.user.findUnique({ where: { id: socket.data.userId ?? '' } });
+      const participant = await room.joinHostAsPlayer(socket, user?.name ?? 'Host', '👑');
+      io.to(`game:${pin}`).emit('lobby:player_joined', {
+        participant,
+        totalCount: room.participantCount(),
+      });
 
       const participants = room.getParticipantsDTO();
       ack?.({ ok: true, participants });
