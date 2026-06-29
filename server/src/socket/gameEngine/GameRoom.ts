@@ -300,8 +300,7 @@ export class GameRoom {
     });
 
     const answeredCount = this.getPlayersArray().filter((p) => p.answered).length;
-    this.io.to(`game:${this.pin}:host`).emit('game:answer_received', { count: answeredCount });
-    this.io.to(`game:${this.pin}:players`).emit('game:answer_received', { count: answeredCount });
+    this.io.to(`game:${this.pin}`).emit('game:answer_received', { count: answeredCount });
 
     const distribution = [0, 0, 0, 0];
     for (const p of this.players.values()) {
@@ -390,6 +389,11 @@ export class GameRoom {
   }
 
   nextQuestion(): void {
+    if (this.advanceTimeout) {
+      clearTimeout(this.advanceTimeout);
+      this.advanceTimeout = null;
+    }
+    this.isEndingQuestion = false;
     this.currentIndex += 1;
     this.startNextQuestion();
   }
