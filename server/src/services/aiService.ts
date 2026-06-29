@@ -82,8 +82,8 @@ JSON formatında döndür. Sadece JSON döndür, başka bir şey yazma:
 
 async function callOpenRouter(
   prompt: string,
-  maxTokens = 8000,
-  timeoutMs = 120_000,
+  maxTokens = 16384,
+  timeoutMs = 180_000,
 ): Promise<string> {
   if (!config.openrouter.apiKey) {
     throw ApiError.internal('OpenRouter API anahtarı tanımlı değil');

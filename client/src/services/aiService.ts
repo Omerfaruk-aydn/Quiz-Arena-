@@ -23,7 +23,7 @@ export const aiService = {
         questionCount: input.questionCount ?? 5,
         includeImages: input.includeImages ?? false,
       },
-      { timeout: 120000 },
+      { timeout: 180000 },
     );
     return data;
   },
