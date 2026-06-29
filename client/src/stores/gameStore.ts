@@ -115,6 +115,7 @@ export const useGameStore = create<GameState>((set) => ({
     set((s) => ({ participants: s.participants.filter((p) => p._id !== participantId) })),
   setQuestion: (currentQuestion, questionIndex, totalQuestions, timeLimit) =>
     set({
+      status: 'active',
       currentQuestion,
       questionIndex,
       totalQuestions,

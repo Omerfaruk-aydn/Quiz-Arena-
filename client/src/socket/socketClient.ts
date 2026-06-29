@@ -20,9 +20,9 @@ export function getSocket(): QuizSocket {
     socket.connect();
     return socket;
   }
-  socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, {
+  const socketOptions: Record<string, unknown> = {
     transports: ['polling', 'websocket'],
-    auth: (cb) => {
+    auth: (cb: (data: Record<string, unknown>) => void) => {
       const t = localStorage.getItem(STORAGE_KEYS.accessToken);
       cb(t ? { token: t } : {});
     },
@@ -30,7 +30,10 @@ export function getSocket(): QuizSocket {
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 3000,
-  });
+    pingInterval: 60000,
+    pingTimeout: 60000,
+  };
+  socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, socketOptions);
 
   let hasConnectedBefore = false;
 
