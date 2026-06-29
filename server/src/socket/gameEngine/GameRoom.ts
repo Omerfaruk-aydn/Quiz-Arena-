@@ -348,11 +348,11 @@ export class GameRoom {
     if (this.currentIndex + 1 >= this.questions.length) {
       setTimeout(() => {
         if (this.state.is('leaderboard')) void this.finishGame();
-      }, 8000);
+      }, 5000);
     } else {
       setTimeout(() => {
         if (this.state.is('leaderboard')) this.nextQuestion();
-      }, 8000);
+      }, 5000);
     }
   }
 
@@ -418,7 +418,7 @@ export class GameRoom {
       const toRemove = wrongIndices.sort(() => Math.random() - 0.5).slice(0, 2);
 
       const result: JokerResult = { type: 'fifty_fifty', removedAnswers: toRemove };
-      this.io.to(`game:${this.pin}`).emit('game:joker_result', { result });
+      this.io.to(socketId).emit('game:joker_result', { result });
       await prisma.gameParticipant.update({
         where: { id: player.participantId },
         data: { jokersUsedFiftyFifty: true },

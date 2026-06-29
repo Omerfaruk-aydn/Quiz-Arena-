@@ -20,14 +20,16 @@ export function getSocket(): QuizSocket {
     socket.connect();
     return socket;
   }
-  const token = localStorage.getItem(STORAGE_KEYS.accessToken);
   socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, {
     transports: ['polling', 'websocket'],
-    auth: token ? { token } : {},
+    auth: (cb) => {
+      const t = localStorage.getItem(STORAGE_KEYS.accessToken);
+      cb(t ? { token: t } : {});
+    },
     reconnection: true,
-    reconnectionAttempts: 10,
+    reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
+    reconnectionDelayMax: 3000,
   });
 
   socket.on('connect', () => {

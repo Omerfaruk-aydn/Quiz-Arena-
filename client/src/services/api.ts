@@ -68,7 +68,7 @@ api.interceptors.response.use(
         const { data } = await axios.post(
           `${API_URL}/api/auth/refresh`,
           {},
-          { withCredentials: true },
+          { withCredentials: true, timeout: 30000 },
         );
         const token = data.accessToken as string;
         setToken(token);
@@ -78,6 +78,13 @@ api.interceptors.response.use(
         original.headers.set('Authorization', `Bearer ${token}`);
         return api(original);
       } catch (e) {
+        const isNetworkError = !axios.isAxiosError(e) || !e.response;
+        if (isNetworkError) {
+          waiters.forEach((w) => w(null));
+          waiters = [];
+          // Don't logout on network error — server might be sleeping
+          return Promise.reject(e);
+        }
         waiters.forEach((w) => w(null));
         waiters = [];
         clearToken();
