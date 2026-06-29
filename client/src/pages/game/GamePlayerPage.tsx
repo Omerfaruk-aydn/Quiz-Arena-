@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGame } from '../../hooks/useGame';
@@ -22,6 +22,8 @@ export function GamePlayerPage() {
   const joinedRef = useRef(false);
   const { play } = useSound();
   const lastResultRef = useRef(false);
+
+  const handleCountdownDone = useCallback(() => undefined, []);
 
   useEffect(() => {
     if (store.status === 'active' && store.currentQuestion) {
@@ -82,7 +84,7 @@ export function GamePlayerPage() {
 
         {status === 'starting' && (
           <motion.div key="starting" className="flex flex-1 flex-col">
-            <CountdownStart count={store.countdown || 3} onDone={() => undefined} />
+            <CountdownStart count={store.countdown || 3} onDone={handleCountdownDone} />
           </motion.div>
         )}
 
