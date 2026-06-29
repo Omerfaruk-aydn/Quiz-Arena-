@@ -1,5 +1,5 @@
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
-export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:4000';
+export const API_URL = import.meta.env.VITE_API_URL || '';
+export const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '';
 
 export const STORAGE_KEYS = {
   accessToken: 'qa_access_token',

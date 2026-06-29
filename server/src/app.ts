@@ -1,4 +1,5 @@
 import express, { type Application, type Request, type Response } from 'express';
+import path from 'path';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -22,7 +23,7 @@ export function createApp(): Application {
   app.use(helmet());
   app.use(
     cors({
-      origin: config.clientUrl,
+      origin: true,
       credentials: true,
     }),
   );
@@ -48,6 +49,14 @@ export function createApp(): Application {
   app.use('/api/games', gameRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/ai', aiRoutes);
+
+  const clientDist = path.resolve(process.cwd(), '../client/dist');
+  app.use(express.static(clientDist));
+
+  app.get('*', (req: Request, res: Response) => {
+    if (req.path.startsWith('/api/')) return;
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
 
   app.use(notFound);
   app.use(errorHandler);
