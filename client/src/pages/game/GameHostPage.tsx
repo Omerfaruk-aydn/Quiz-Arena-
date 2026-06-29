@@ -10,6 +10,7 @@ import { GameResults } from '../../components/game/GameResults';
 import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES } from '../../lib/constants';
+import { useSound } from '../../hooks/useSound';
 
 export function GameHostPage() {
   const { pin } = useParams<{ pin: string }>();
@@ -19,7 +20,6 @@ export function GameHostPage() {
     isConnected,
     startGame,
     endGame,
-    kickPlayer,
     sendChat,
     leaveLobby,
     submitAnswer,
@@ -27,8 +27,9 @@ export function GameHostPage() {
     jokers,
   } = useGame(pin ?? null, 'host');
   const [quizTitle, setQuizTitle] = useState<string | undefined>();
-  const [countdown, setCountdown] = useState(0);
   const questionStartRef = useRef<number>(Date.now());
+  const { play } = useSound();
+  const lastResultRef = useRef(false);
 
   useEffect(() => {
     if (!pin) return;
@@ -44,10 +45,27 @@ export function GameHostPage() {
     }
   }, [store.currentQuestion, store.status]);
 
+  useEffect(() => {
+    if (store.status === 'question_results' && store.myResult) {
+      if (store.myResult.isCorrect !== lastResultRef.current) {
+        lastResultRef.current = store.myResult.isCorrect;
+        play(store.myResult.isCorrect ? 'correct' : 'wrong', 0.5);
+      }
+    }
+    if (store.status === 'active') {
+      lastResultRef.current = false;
+    }
+  }, [store.status, store.myResult, play]);
+
+  useEffect(() => {
+    if (store.status === 'finished') {
+      play('win', 0.6);
+    }
+  }, [store.status, play]);
+
   const status = store.status;
 
   const handleStart = () => {
-    setCountdown(3);
     startGame();
   };
 
@@ -82,10 +100,7 @@ export function GameHostPage() {
         {/* Countdown 3-2-1 */}
         {status === 'starting' && (
           <motion.div key="starting" className="flex flex-1 flex-col">
-            <CountdownStart
-              count={countdown}
-              onDone={() => setCountdown((c) => Math.max(0, c - 1))}
-            />
+            <CountdownStart count={store.countdown || 3} onDone={() => undefined} />
           </motion.div>
         )}
 
@@ -176,6 +191,7 @@ export function GameHostPage() {
           <motion.div key="finished" className="flex flex-1 flex-col">
             <GameResults
               leaderboard={store.finalLeaderboard}
+              myParticipantId={store.participantId ?? undefined}
               pin={pin ?? ''}
               onHome={() => navigate(ROUTES.dashboard)}
               onPlayAgain={() => navigate(ROUTES.quizzes)}
@@ -197,7 +213,6 @@ export function GameHostPage() {
           </span>
         </div>
       )}
-      {void kickPlayer}
     </div>
   );
 }

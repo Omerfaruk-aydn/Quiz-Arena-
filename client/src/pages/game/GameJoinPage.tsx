@@ -49,17 +49,27 @@ export function GameJoinPage() {
     setLoading(true);
     try {
       const socket = getSocket();
-      gameEvents.joinLobby(socket, pin, nickname.trim(), emoji, (res) => {
-        if (res.ok && res.participant) {
-          localStorage.setItem(STORAGE_KEYS.participant, res.participant._id);
-        }
+      const result = await new Promise<{
+        ok: boolean;
+        participant?: { _id: string };
+        error?: string;
+      }>((resolve) => {
+        gameEvents.joinLobby(socket, pin, nickname.trim(), emoji, (res) => resolve(res));
+        setTimeout(() => resolve({ ok: false, error: 'Zaman aşımı' }), 15000);
       });
+      if (!result.ok) {
+        toast.error(result.error ?? 'Katılım başarısız');
+        setLoading(false);
+        return;
+      }
+      if (result.participant) {
+        localStorage.setItem(STORAGE_KEYS.participant, result.participant._id);
+      }
       localStorage.setItem(STORAGE_KEYS.pin, pin);
       setStorePin(pin);
       navigate(ROUTES.gamePlayer.replace(':pin', pin));
     } catch (err) {
       toast.error(extractApiError(err).message);
-    } finally {
       setLoading(false);
     }
   };

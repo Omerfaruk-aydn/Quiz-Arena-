@@ -59,11 +59,16 @@ export interface ClientToServerEvents {
   'lobby:ready': () => void;
   'host:create_game': (
     payload: { quizId: string; settings?: Partial<unknown> },
-    ack?: (res: { ok: boolean; pin?: string; error?: string }) => void,
+    ack?: (res: { ok: boolean; pin?: string; participantId?: string; error?: string }) => void,
   ) => void;
   'host:join': (
     payload: { pin: string },
-    ack?: (res: { ok: boolean; participants?: ParticipantDTO[]; error?: string }) => void,
+    ack?: (res: {
+      ok: boolean;
+      participants?: ParticipantDTO[];
+      participantId?: string;
+      error?: string;
+    }) => void,
   ) => void;
   'host:start_game': (payload: { pin: string }) => void;
   'host:next_question': (payload: { pin: string }) => void;

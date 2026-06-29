@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
+import { useSound } from '../../hooks/useSound';
 
 interface CountdownTimerProps {
   remaining: number;
@@ -10,6 +11,9 @@ interface CountdownTimerProps {
 }
 
 export function CountdownTimer({ remaining, total, size = 120, className }: CountdownTimerProps) {
+  const { play } = useSound();
+  const lastPlayedRef = useRef(-1);
+
   const stroke = 8;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -19,6 +23,16 @@ export function CountdownTimer({ remaining, total, size = 120, className }: Coun
   const isCritical = remaining <= 3;
 
   const colorClass = isCritical ? '#EF4444' : isLow ? '#F59E0B' : '#7C3AED';
+
+  useEffect(() => {
+    if (remaining <= 5 && remaining > 0 && remaining !== lastPlayedRef.current) {
+      lastPlayedRef.current = remaining;
+      play('tension', 0.5);
+    }
+    if (remaining > 5) {
+      lastPlayedRef.current = -1;
+    }
+  }, [remaining, play]);
 
   return (
     <div
@@ -65,27 +79,71 @@ export function CountdownTimer({ remaining, total, size = 120, className }: Coun
   );
 }
 
-export function CountdownStart({ count, onDone }: { count: number; onDone?: () => void }) {
-  const ref = useRef(onDone);
-  ref.current = onDone;
+export function CountdownStart({
+  count: initialCount,
+  onDone,
+}: {
+  count: number;
+  onDone?: () => void;
+}) {
+  const { play } = useSound();
+  const [count, setCount] = useState(initialCount);
+  const doneRef = useRef(false);
+
   useEffect(() => {
-    const t = setTimeout(() => ref.current?.(), 1000);
-    return () => clearTimeout(t);
-  }, [count]);
+    if (count > 0) {
+      play('countdown', 0.5);
+      const t = setTimeout(() => setCount((c) => c - 1), 1000);
+      return () => clearTimeout(t);
+    }
+    if (count === 0 && !doneRef.current) {
+      doneRef.current = true;
+      play('fanfare', 0.7);
+      const t = setTimeout(() => onDone?.(), 1000);
+      return () => clearTimeout(t);
+    }
+  }, [count, play, onDone]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6">
-      <motion.div
-        key={count}
-        initial={{ scale: 0.2, opacity: 0, rotate: -20 }}
-        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-        exit={{ scale: 2, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 14 }}
-        className="font-display text-6xl sm:text-8xl md:text-[12rem] font-bold gradient-text leading-none"
-      >
-        {count}
-      </motion.div>
-      <p className="text-xl text-text-muted">Hazır olun…</p>
+      {count > 0 ? (
+        <>
+          <motion.div
+            key={count}
+            initial={{ scale: 0.2, opacity: 0, rotate: -20 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 2, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 14 }}
+            className="font-display text-6xl sm:text-8xl md:text-[12rem] font-bold gradient-text leading-none"
+          >
+            {count}
+          </motion.div>
+          <p className="text-xl text-text-muted">Hazır olun…</p>
+        </>
+      ) : (
+        <motion.div
+          key="go"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0, 1.3, 1], opacity: 1 }}
+          transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              filter: [
+                'drop-shadow(0 0 20px rgba(124,58,237,0.8))',
+                'drop-shadow(0 0 40px rgba(236,72,153,0.9))',
+                'drop-shadow(0 0 20px rgba(124,58,237,0.8))',
+              ],
+            }}
+            transition={{ duration: 0.8, repeat: Infinity }}
+            className="font-display text-5xl sm:text-7xl md:text-[10rem] font-bold gradient-text leading-none"
+          >
+            BAŞLA!
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 }

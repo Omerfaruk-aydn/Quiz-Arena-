@@ -9,6 +9,7 @@ import { GameResults } from '../../components/game/GameResults';
 import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES, STORAGE_KEYS } from '../../lib/constants';
+import { useSound } from '../../hooks/useSound';
 
 export function GamePlayerPage() {
   const { pin } = useParams<{ pin: string }>();
@@ -19,12 +20,32 @@ export function GamePlayerPage() {
   );
   const questionStartRef = useRef<number>(Date.now());
   const joinedRef = useRef(false);
+  const { play } = useSound();
+  const lastResultRef = useRef(false);
 
   useEffect(() => {
     if (store.status === 'active' && store.currentQuestion) {
       questionStartRef.current = Date.now();
     }
   }, [store.currentQuestion, store.status]);
+
+  useEffect(() => {
+    if (store.status === 'question_results' && store.myResult) {
+      if (store.myResult.isCorrect !== lastResultRef.current) {
+        lastResultRef.current = store.myResult.isCorrect;
+        play(store.myResult.isCorrect ? 'correct' : 'wrong', 0.5);
+      }
+    }
+    if (store.status === 'active') {
+      lastResultRef.current = false;
+    }
+  }, [store.status, store.myResult, play]);
+
+  useEffect(() => {
+    if (store.status === 'finished') {
+      play('win', 0.6);
+    }
+  }, [store.status, play]);
 
   useEffect(() => {
     if (joinedRef.current) return;
@@ -125,6 +146,7 @@ export function GamePlayerPage() {
           <motion.div key="finished" className="flex flex-1 flex-col">
             <GameResults
               leaderboard={store.finalLeaderboard}
+              myParticipantId={store.participantId ?? undefined}
               pin={pin ?? ''}
               onHome={() => navigate(ROUTES.landing)}
               onPlayAgain={() => navigate(ROUTES.gameJoin)}

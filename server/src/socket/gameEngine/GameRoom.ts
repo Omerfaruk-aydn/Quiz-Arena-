@@ -31,11 +31,13 @@ interface PlayerState {
   color: string;
   totalScore: number;
   streak: number;
+  correctCount: number;
   lastPointsEarned: number;
   answered: boolean;
   selectedAnswer: number | null;
   responseTime: number;
   isConnected: boolean;
+  isHost: boolean;
   jokers: { fiftyFifty: boolean; phoneAFriend: boolean; skipQuestion: boolean };
 }
 
@@ -59,6 +61,9 @@ export class GameRoom {
   private timer: QuestionTimer | null = null;
   private difficulty: string = 'medium';
   private readonly io: QuizServer;
+  private isEndingQuestion = false;
+  private isFinished = false;
+  private advanceTimeout: NodeJS.Timeout | null = null;
 
   constructor(
     io: QuizServer,
@@ -138,11 +143,13 @@ export class GameRoom {
       color,
       totalScore: 0,
       streak: 0,
+      correctCount: 0,
       lastPointsEarned: 0,
       answered: false,
       selectedAnswer: null,
       responseTime: 0,
       isConnected: true,
+      isHost: false,
       jokers: { fiftyFifty: true, phoneAFriend: true, skipQuestion: true },
     };
     this.players.set(socket.id, player);
@@ -164,6 +171,8 @@ export class GameRoom {
     emoji: string,
   ): Promise<ParticipantDTO> {
     const participant = await this.joinPlayer(socket, nickname, emoji);
+    const player = this.players.get(socket.id);
+    if (player) player.isHost = true;
     socket.join(`game:${this.pin}:host`);
     socket.data.role = 'host';
     return participant;
@@ -206,14 +215,16 @@ export class GameRoom {
       });
       this.io.to(`game:${this.pin}`).emit('game:started', { pin: this.pin, status: 'active' });
       this.startNextQuestion();
-    }, 3000);
+    }, 4000);
   }
 
   startNextQuestion(): void {
+    if (this.isFinished) return;
     if (this.currentIndex >= this.questions.length) {
       void this.finishGame();
       return;
     }
+    this.isEndingQuestion = false;
     const q = this.questions[this.currentIndex];
     for (const p of this.players.values()) {
       p.answered = false;
@@ -273,6 +284,7 @@ export class GameRoom {
     if (isCorrect) {
       player.totalScore += points;
       player.streak += 1;
+      player.correctCount += 1;
     } else {
       player.streak = 0;
     }
@@ -305,13 +317,18 @@ export class GameRoom {
   }
 
   private async endQuestion(): Promise<void> {
+    if (this.isEndingQuestion) return;
+    this.isEndingQuestion = true;
     if (this.timer) {
       this.timer.stop();
       this.timer = null;
     }
     this.state.force('question_results');
     const q = this.questions[this.currentIndex];
-    if (!q) return;
+    if (!q) {
+      this.isEndingQuestion = false;
+      return;
+    }
     const correctAnswer = q.answers.findIndex((a) => a.isCorrect);
     const distribution = [0, 0, 0, 0];
     for (const p of this.players.values()) {
@@ -345,15 +362,17 @@ export class GameRoom {
     this.io.to(`game:${this.pin}`).emit('game:leaderboard', { leaderboard });
     this.state.force('leaderboard');
 
-    if (this.currentIndex + 1 >= this.questions.length) {
-      setTimeout(() => {
-        if (this.state.is('leaderboard')) void this.finishGame();
-      }, 5000);
-    } else {
-      setTimeout(() => {
-        if (this.state.is('leaderboard')) this.nextQuestion();
-      }, 5000);
-    }
+    const isLast = this.currentIndex + 1 >= this.questions.length;
+    this.advanceTimeout = setTimeout(() => {
+      this.advanceTimeout = null;
+      this.isEndingQuestion = false;
+      if (this.isFinished) return;
+      if (isLast) {
+        void this.finishGame();
+      } else {
+        this.nextQuestion();
+      }
+    }, 5000);
   }
 
   private buildLeaderboard(correctAnswer: number): LeaderboardEntry[] {
@@ -380,10 +399,21 @@ export class GameRoom {
   }
 
   async endGame(): Promise<void> {
+    if (this.isFinished) return;
     await this.finishGame();
   }
 
   private async finishGame(): Promise<void> {
+    if (this.isFinished) return;
+    this.isFinished = true;
+    if (this.advanceTimeout) {
+      clearTimeout(this.advanceTimeout);
+      this.advanceTimeout = null;
+    }
+    if (this.timer) {
+      this.timer.stop();
+      this.timer = null;
+    }
     this.state.force('finished');
     const sorted = [...this.players.values()].sort((a, b) => b.totalScore - a.totalScore);
     const finalLeaderboard = sorted.map((p, i) => ({
@@ -391,7 +421,7 @@ export class GameRoom {
       nickname: p.nickname,
       emoji: p.emoji,
       totalScore: p.totalScore,
-      correctAnswers: 0,
+      correctAnswers: p.correctCount,
       rank: i + 1,
     }));
     await finalizeSession(this.sessionId);
@@ -521,7 +551,12 @@ export class GameRoom {
     this.players.set(socket.id, existing);
     socket.join(`game:${this.pin}`);
     socket.join(`game:${this.pin}:players`);
-    socket.data.role = 'player';
+    if (existing.isHost) {
+      socket.join(`game:${this.pin}:host`);
+      socket.data.role = 'host';
+    } else {
+      socket.data.role = 'player';
+    }
     socket.data.pin = this.pin;
     socket.data.participantId = participantId;
     await prisma.gameParticipant.update({
@@ -539,31 +574,35 @@ export class GameRoom {
       currentQuestionIndex: this.currentIndex,
       totalQuestions: this.questions.length,
       remainingTime,
+      timeLimit: getTimeLimitForDifficulty(this.difficulty),
       answered: existing.answered,
       selectedAnswer: existing.selectedAnswer,
       totalScore: existing.totalScore,
       rank: rank || 0,
     };
-    this.io.to(socket.id).emit('game:reconnected', { gameState: reconnectState });
 
     if (this.state.is('active') && this.timer) {
       const q = this.questions[this.currentIndex];
       if (q) {
+        const fullTimeLimit = getTimeLimitForDifficulty(this.difficulty);
         this.io.to(socket.id).emit('game:question_start', {
           question: {
             _id: q.id,
             text: q.text,
             image: q.imageUrl || null,
             answers: q.answers.map((a) => ({ text: a.text, color: a.color })),
-            timeLimit: getTimeLimitForDifficulty(this.difficulty),
+            timeLimit: fullTimeLimit,
             explanation: q.explanation || '',
           },
           index: this.currentIndex,
           total: this.questions.length,
-          timeLimit: this.timer.getRemaining(),
+          timeLimit: fullTimeLimit,
         });
+        this.io.to(socket.id).emit('game:timer_tick', { remaining: this.timer.getRemaining() });
       }
     }
+
+    this.io.to(socket.id).emit('game:reconnected', { gameState: reconnectState });
   }
 
   getStatus(): GameStatus {

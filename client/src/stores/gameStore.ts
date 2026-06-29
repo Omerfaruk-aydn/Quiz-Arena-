@@ -150,7 +150,7 @@ export const useGameStore = create<GameState>((set) => ({
       questionIndex: state.currentQuestionIndex,
       totalQuestions: state.totalQuestions,
       remainingTime: state.remainingTime,
-      timeLimit: state.remainingTime,
+      timeLimit: state.timeLimit || state.remainingTime,
       hasAnswered: state.answered,
       selectedAnswer: state.selectedAnswer,
       myResult:

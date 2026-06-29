@@ -63,7 +63,7 @@ export function connectLobbyHandler(io: QuizServer, socket: QuizSocket): void {
         participant,
         totalCount: room.participantCount(),
       });
-      ack?.({ ok: true, pin: session.pin });
+      ack?.({ ok: true, pin: session.pin, participantId: participant._id });
     } catch (err) {
       const e: { code?: string; message?: string } = err as { code?: string; message?: string };
       socket.emit('game:error', {
@@ -96,7 +96,7 @@ export function connectLobbyHandler(io: QuizServer, socket: QuizSocket): void {
       });
 
       const participants = room.getParticipantsDTO();
-      ack?.({ ok: true, participants });
+      ack?.({ ok: true, participants, participantId: participant._id });
     } catch (err) {
       const e: { statusCode?: number; code?: string; message?: string } = err as {
         statusCode?: number;

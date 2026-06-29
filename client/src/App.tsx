@@ -77,6 +77,8 @@ function PageFallback() {
 function Bootstrap() {
   const { bootstrap } = useAuth();
   useEffect(() => {
+    void bootstrap();
+
     const warmup = async () => {
       try {
         const controller = new AbortController();
@@ -84,17 +86,10 @@ function Bootstrap() {
         await fetch(`${API_URL}/health`, { signal: controller.signal });
         clearTimeout(timeout);
       } catch {
-        try {
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 20_000);
-          await fetch(`${API_URL}/health`, { signal: controller.signal });
-          clearTimeout(timeout);
-        } catch {
-          // Give up, bootstrap will handle it
-        }
+        // Server might be sleeping — that's OK
       }
     };
-    void warmup().finally(() => bootstrap());
+    void warmup();
 
     // Keep Render awake — ping every 4 minutes
     const keepalive = setInterval(() => {

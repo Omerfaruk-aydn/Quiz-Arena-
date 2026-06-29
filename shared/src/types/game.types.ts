@@ -54,6 +54,7 @@ export interface ReconnectStateDTO {
   currentQuestionIndex: number;
   totalQuestions: number;
   remainingTime: number;
+  timeLimit: number;
   answered: boolean;
   selectedAnswer: number | null;
   totalScore: number;

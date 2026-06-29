@@ -39,6 +39,8 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
   >(httpServer, {
     cors: { origin: config.clientUrl, credentials: true },
     maxHttpBufferSize: 1e6,
+    pingInterval: 60000,
+    pingTimeout: 60000,
   });
 
   const gameNs: Namespace<

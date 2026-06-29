@@ -4,6 +4,7 @@ import { useSocket } from './useSocket';
 import { gameEvents } from '../socket/gameEvents';
 import { gameListeners } from '../socket/gameListeners';
 import { clearGameSession } from '../socket/socketClient';
+import { STORAGE_KEYS } from '../lib/constants';
 import toast from 'react-hot-toast';
 import type { JokerType, JokerState } from '@quizarena/shared';
 
@@ -31,7 +32,14 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
         if (res.ok && res.participants) {
           store.setParticipants(res.participants);
         }
+        if (res.ok && res.participantId) {
+          store.setParticipantId(res.participantId);
+          localStorage.setItem(STORAGE_KEYS.participant, res.participantId);
+        }
       });
+    } else {
+      const savedParticipant = localStorage.getItem(STORAGE_KEYS.participant);
+      if (savedParticipant) store.setParticipantId(savedParticipant);
     }
 
     cleanups.push(

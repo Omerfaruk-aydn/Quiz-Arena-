@@ -32,12 +32,17 @@ export function getSocket(): QuizSocket {
     reconnectionDelayMax: 3000,
   });
 
+  let hasConnectedBefore = false;
+
   socket.on('connect', () => {
-    const savedPin = localStorage.getItem(STORAGE_KEYS.pin);
-    const savedParticipant = localStorage.getItem(STORAGE_KEYS.participant);
-    if (savedPin && savedParticipant && socket) {
-      socket.emit('game:rejoin', { pin: savedPin, participantId: savedParticipant });
+    if (hasConnectedBefore) {
+      const savedPin = localStorage.getItem(STORAGE_KEYS.pin);
+      const savedParticipant = localStorage.getItem(STORAGE_KEYS.participant);
+      if (savedPin && savedParticipant && socket) {
+        socket.emit('game:rejoin', { pin: savedPin, participantId: savedParticipant });
+      }
     }
+    hasConnectedBefore = true;
     reconnectHandlers.forEach((h) => h());
   });
 

@@ -19,7 +19,12 @@ export const gameEvents = {
   hostJoin: (
     socket: QuizSocket,
     pin: string,
-    ack?: (res: { ok: boolean; participants?: ParticipantDTO[]; error?: string }) => void,
+    ack?: (res: {
+      ok: boolean;
+      participants?: ParticipantDTO[];
+      participantId?: string;
+      error?: string;
+    }) => void,
   ) => socket.emit('host:join', { pin }, ack),
 
   startGame: (socket: QuizSocket, pin: string) => socket.emit('host:start_game', { pin }),
