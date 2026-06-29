@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
 
 interface Particle {
   x: number;
@@ -14,14 +13,15 @@ interface Particle {
 
 const COLORS = ['#7C3AED', '#EC4899', '#F59E0B', '#3B82F6', '#10B981', '#22C55E'];
 
-export function ConfettiCanvas({
-  active,
-  duration = 4000,
-}: {
+interface ConfettiProps {
   active: boolean;
-  duration?: number;
-}) {
+  intensity?: 'normal' | 'high';
+}
+
+export function ConfettiCanvas({ active, intensity = 'normal' }: ConfettiProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const intensityRef = useRef(intensity);
+  intensityRef.current = intensity;
 
   useEffect(() => {
     if (!active) return;
@@ -42,11 +42,12 @@ export function ConfettiCanvas({
 
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    const particleCount = intensityRef.current === 'high' ? 250 : 180;
     const particles: Particle[] = [];
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * w,
-        y: -20 - Math.random() * h * 0.5,
+        y: Math.random() * h,
         size: Math.random() * 8 + 4,
         color: COLORS[Math.floor(Math.random() * COLORS.length)],
         rotation: Math.random() * 360,
@@ -57,7 +58,9 @@ export function ConfettiCanvas({
     }
 
     let raf = 0;
+    let running = true;
     const tick = () => {
+      if (!running) return;
       ctx.clearRect(0, 0, w, h);
       for (const p of particles) {
         p.x += p.speedX;
@@ -67,6 +70,8 @@ export function ConfettiCanvas({
           p.y = -20;
           p.x = Math.random() * w;
         }
+        if (p.x < -20) p.x = w + 20;
+        if (p.x > w + 20) p.x = -20;
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate((p.rotation * Math.PI) / 180);
@@ -78,19 +83,12 @@ export function ConfettiCanvas({
     };
     raf = requestAnimationFrame(tick);
 
-    const cleanup = setTimeout(() => {
-      gsap.to(particles, {
-        speedY: 0,
-        onComplete: () => cancelAnimationFrame(raf),
-      });
-    }, duration);
-
     return () => {
+      running = false;
       cancelAnimationFrame(raf);
-      clearTimeout(cleanup);
       window.removeEventListener('resize', onResize);
     };
-  }, [active, duration]);
+  }, [active]);
 
   if (!active) return null;
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trophy,
@@ -10,6 +10,8 @@ import {
   Star,
   Target,
   Zap,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import type { FinalLeaderboardEntry } from '../../types';
 import { PlayerPodium } from './PlayerPodium';
@@ -75,6 +77,9 @@ export function GameResults({
   const [showAll, setShowAll] = useState(false);
   const [showPodium, setShowPodium] = useState(false);
   const [showList, setShowList] = useState(false);
+  const [musicMuted, setMusicMuted] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const musicIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const me = leaderboard.find((e) => e.participantId === myParticipantId);
   const winner = leaderboard[0];
@@ -89,6 +94,60 @@ export function GameResults({
     };
   }, []);
 
+  // Win music - looping fanfare
+  useEffect(() => {
+    const playChord = (ctx: AudioContext, freqs: number[], time: number, dur: number) => {
+      freqs.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, time);
+        gain.gain.setValueAtTime(0.12, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(time);
+        osc.stop(time + dur);
+      });
+    };
+
+    try {
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      audioCtxRef.current = ctx;
+
+      const playSequence = () => {
+        if (musicMuted || ctx.state === 'closed') return;
+        const now = ctx.currentTime;
+        playChord(ctx, [523.25, 659.25, 783.99], now, 0.4);
+        playChord(ctx, [587.33, 739.99, 880.0], now + 0.5, 0.4);
+        playChord(ctx, [659.25, 783.99, 987.77], now + 1.0, 0.4);
+        playChord(ctx, [523.25, 659.25, 783.99, 1046.5], now + 1.5, 0.8);
+      };
+
+      playSequence();
+      musicIntervalRef.current = setInterval(playSequence, 2500);
+    } catch {
+      // silent
+    }
+
+    return () => {
+      if (musicIntervalRef.current) {
+        clearInterval(musicIntervalRef.current);
+        musicIntervalRef.current = null;
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close();
+        audioCtxRef.current = null;
+      }
+    };
+  }, [musicMuted]);
+
+  const toggleMusic = () => setMusicMuted((m) => !m);
+
   const rankBadge = (rank: number) => {
     if (rank === 1)
       return 'bg-gradient-to-br from-accent-amber to-accent-pink text-white shadow-[0_0_12px_rgba(245,158,11,0.5)]';
@@ -99,7 +158,7 @@ export function GameResults({
 
   return (
     <div className="relative flex min-h-screen flex-1 flex-col overflow-y-auto px-4 py-6 sm:py-10">
-      <ConfettiCanvas active duration={5000} />
+      <ConfettiCanvas active intensity="high" />
 
       <div className="relative z-10 mx-auto w-full max-w-3xl space-y-6 sm:space-y-8">
         <motion.div
@@ -115,6 +174,14 @@ export function GameResults({
             <Trophy className="mx-auto mb-3 text-accent-amber" size={56} fill="currentColor" />
           </motion.div>
           <h1 className="text-3xl sm:text-5xl font-bold gradient-text font-display">Oyun Bitti!</h1>
+          <button
+            onClick={toggleMusic}
+            className="mx-auto mt-2 flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs text-text-muted hover:text-white transition-colors"
+            title={musicMuted ? 'Müziği aç' : 'Müziği kapat'}
+          >
+            {musicMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+            {musicMuted ? 'Müzik kapalı' : 'Müzik açık'}
+          </button>
           {winner && (
             <motion.p
               initial={{ opacity: 0 }}
