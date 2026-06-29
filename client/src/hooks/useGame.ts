@@ -25,6 +25,15 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
 
     const cleanups: Array<() => void> = [];
 
+    // Host joins the game room via socket
+    if (role === 'host') {
+      gameEvents.hostJoin(socket, pin, (res) => {
+        if (res.ok && res.participants) {
+          store.setParticipants(res.participants);
+        }
+      });
+    }
+
     cleanups.push(
       gameListeners.on(socket, 'lobby:player_joined', ({ participant, totalCount }) => {
         store.addParticipant(participant);

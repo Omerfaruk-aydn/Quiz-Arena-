@@ -182,6 +182,10 @@ export class GameRoom {
     this.io.to(`game:${this.pin}`).emit('lobby:player_list', { participants: list });
   }
 
+  getParticipantsDTO(): ParticipantDTO[] {
+    return this.getPlayersArray().map((p) => this.toDTO(p));
+  }
+
   async startGame(): Promise<void> {
     this.state.transition('starting');
     await prisma.gameSession.update({

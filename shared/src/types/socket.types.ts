@@ -61,6 +61,10 @@ export interface ClientToServerEvents {
     payload: { quizId: string; settings?: Partial<unknown> },
     ack?: (res: { ok: boolean; pin?: string; error?: string }) => void,
   ) => void;
+  'host:join': (
+    payload: { pin: string },
+    ack?: (res: { ok: boolean; participants?: ParticipantDTO[]; error?: string }) => void,
+  ) => void;
   'host:start_game': (payload: { pin: string }) => void;
   'host:next_question': (payload: { pin: string }) => void;
   'host:skip_question': (payload: { pin: string }) => void;

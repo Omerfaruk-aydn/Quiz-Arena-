@@ -69,6 +69,34 @@ export function connectLobbyHandler(io: QuizServer, socket: QuizSocket): void {
     }
   });
 
+  socket.on('host:join', async ({ pin }, ack) => {
+    try {
+      const session = await prisma.gameSession.findFirst({ where: { pin, status: 'lobby' } });
+      if (!session) throw ApiError.notFound('Lobi bulunamadı', 'LOBBY_NOT_FOUND');
+
+      let room = rooms.get(pin);
+      if (!room) {
+        room = new GameRoom(io, pin, session.id, {
+          timeLimit: session.settingsTimeLimit,
+          showAnswerAfterEach: session.settingsShowAnswerAfterEach,
+        });
+        await room.loadQuiz(session.quizId);
+        rooms.set(pin, room);
+      }
+      room.joinHost(socket);
+
+      const participants = room.getParticipantsDTO();
+      ack?.({ ok: true, participants });
+    } catch (err) {
+      const e: { statusCode?: number; code?: string; message?: string } = err as {
+        statusCode?: number;
+        code?: string;
+        message?: string;
+      };
+      ack?.({ ok: false, error: e.message });
+    }
+  });
+
   socket.on('lobby:leave', ({ pin }: { pin: string }) => {
     const room = rooms.get(pin);
     if (!room) return;

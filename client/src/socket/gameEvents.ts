@@ -1,5 +1,6 @@
 import type { QuizSocket } from './socketClient';
 import type { JokerType } from '@quizarena/shared';
+import type { ParticipantDTO } from '../types';
 
 export const gameEvents = {
   joinLobby: (
@@ -14,6 +15,12 @@ export const gameEvents = {
 
   createGame: (socket: QuizSocket, quizId: string, settings?: Record<string, unknown>) =>
     socket.emit('host:create_game', { quizId, settings }),
+
+  hostJoin: (
+    socket: QuizSocket,
+    pin: string,
+    ack?: (res: { ok: boolean; participants?: ParticipantDTO[]; error?: string }) => void,
+  ) => socket.emit('host:join', { pin }, ack),
 
   startGame: (socket: QuizSocket, pin: string) => socket.emit('host:start_game', { pin }),
 
