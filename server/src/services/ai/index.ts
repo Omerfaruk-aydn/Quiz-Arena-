@@ -1,6 +1,6 @@
 import { buildPrompt } from './prompts.js';
 import { callOpenRouter } from './openrouter.js';
-import { fallbackResolveImage, resolveImageUrl } from './imageResolver.js';
+import { fallbackResolveImage, isValidImageUrl, resolveImageUrl } from './imageResolver.js';
 import type { AiQuizQuestion, GenerateInput, GenerateResult } from './types.js';
 
 export { MODEL } from './openrouter.js';
@@ -103,7 +103,7 @@ function resolveImages(questions: AiQuizQuestion[]): AiQuizQuestion[] {
     }
 
     // Fallback: infer image from question text and correct answer
-    if (!resolved) {
+    if (!isValidImageUrl(resolved)) {
       const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
       const fallback = fallbackResolveImage(q.text, correctAnswer);
       if (fallback) {
@@ -112,11 +112,13 @@ function resolveImages(questions: AiQuizQuestion[]): AiQuizQuestion[] {
       }
     }
 
+    const finalUrl = isValidImageUrl(resolved) ? resolved : undefined;
+
     return {
       ...q,
-      imageUrl: resolved,
-      imageType: resolved ? resolvedType : undefined,
-      imageQuery: resolved ? q.imageQuery || q.answers.find((a) => a.isCorrect)?.text : undefined,
+      imageUrl: finalUrl,
+      imageType: finalUrl ? resolvedType : undefined,
+      imageQuery: finalUrl ? q.imageQuery || q.answers.find((a) => a.isCorrect)?.text : undefined,
     };
   });
 }
@@ -127,13 +129,13 @@ export async function generateQuiz(input: GenerateInput): Promise<GenerateResult
   const questions = parseAiResponse(raw);
   const withImages = input.includeImages ? resolveImages(questions) : questions;
 
-  // Strip internal fields from response
+  // Strip internal fields from response and discard broken/empty image URLs
   const clientQuestions = withImages.map((q) => ({
     text: q.text,
     type: q.type,
     answers: q.answers,
     explanation: q.explanation,
-    imageUrl: q.imageUrl,
+    imageUrl: isValidImageUrl(q.imageUrl) ? q.imageUrl : undefined,
   }));
 
   return { questions: clientQuestions };

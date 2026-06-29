@@ -47,10 +47,10 @@ const TOPICS = [
 
 const IMAGE_TYPE_INSTRUCTIONS = `
 GÖRSEL (sadece includeImages=true ise):
-- Yaklaşık yarısı görsel olsun.
+- Yaklaşık yarısı görsel olsun (sayi/2 yuvarla).
 - imageType/imageQuery kullan; imageUrl ASLA kullanma.
-- imageQuery: küçük harf doğru cevap adı.
-- Tipler: flag, landmark, person, logo, map, artwork, animal, instrument, food, nature, architecture.
+- imageType: flag, landmark, person, logo, map, artwork, animal, instrument, food, nature, architecture.
+- imageQuery: doğru cevabın TAM metni; küçük harf, noktalama yok. Örnek: doğru cevap "Leonardo da Vinci" ise imageQuery "leonardo da vinci".
 - Görsel yoksa imageType="", imageQuery="".
 `;
 

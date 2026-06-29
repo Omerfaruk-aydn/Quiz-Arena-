@@ -28,15 +28,105 @@ function findPartial(query: string, map: Record<string, string>): string | undef
   const q = normalize(query);
   if (q.length < 2) return undefined;
 
-  // Query, key'in tamamını veya bir kısmını içeriyorsa (query = "türkiye", key = "türkiye cumhuriyeti")
-  const exact = Object.keys(map).find((k) => normalize(k).includes(q));
-  if (exact) return map[exact];
+  const keys = Object.keys(map);
+
+  // 1) Key contains query (query = "türkiye", key = "türkiye cumhuriyeti")
+  const keyContainsQuery = keys.find((k) => normalize(k).includes(q));
+  if (keyContainsQuery) return map[keyContainsQuery];
+
+  // 2) Query contains key (query = long question text, key = "mona lisa")
+  const queryContainsKey = keys.find((k) => {
+    const nk = normalize(k);
+    return nk.length >= 2 && q.includes(nk);
+  });
+  if (queryContainsKey) return map[queryContainsKey];
 
   return undefined;
 }
 
 function pickRandom<T>(arr: T[]): T | undefined {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+const DEFAULT_WIKIMEDIA_WIDTH = 960;
+
+/**
+ * Convert any Wikimedia Commons / Wikipedia file URL into a stable
+ * Special:FilePath redirect URL with a standard thumbnail width.
+ * This fixes two common breakage modes:
+ * 1. Non-standard thumbnail widths (e.g. 440px, 640px) now return 400.
+ * 2. Wrong hash directory segments in manually constructed URLs.
+ *
+ * Browser <img> tags follow the 302 redirect automatically.
+ */
+export function normalizeWikimediaUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  if (!url.includes('wikimedia.org')) return url;
+
+  // Already a Special:FilePath / Special:Redirect URL
+  if (url.includes('Special:FilePath') || url.includes('Special:Redirect')) {
+    return ensureStandardWidth(url);
+  }
+
+  try {
+    const parsed = new URL(url);
+    const pathParts = parsed.pathname.split('/').filter(Boolean);
+
+    // Detect project: /wikipedia/commons/... or /wikipedia/en/... etc.
+    let projectHost = 'commons.wikimedia.org';
+    const wpIdx = pathParts.indexOf('wikipedia');
+    if (wpIdx !== -1 && pathParts[wpIdx + 1]) {
+      const project = pathParts[wpIdx + 1];
+      if (project !== 'commons') {
+        projectHost = `${project}.wikipedia.org`;
+      }
+    }
+
+    let filename = pathParts[pathParts.length - 1];
+    if (!filename) return url;
+
+    // Strip thumbnail width prefix: "640px-Filename.jpg"
+    filename = filename.replace(/^\d+px-/, '');
+
+    // SVGs rendered as PNG have a double extension in thumb URLs
+    if (filename.endsWith('.svg.png')) {
+      filename = filename.slice(0, -4);
+    }
+
+    // Decode then re-encode so we don't double-encode
+    filename = encodeURIComponent(decodeURIComponent(filename));
+
+    return `https://${projectHost}/wiki/Special:FilePath/${filename}?width=${DEFAULT_WIKIMEDIA_WIDTH}`;
+  } catch {
+    return url;
+  }
+}
+
+function ensureStandardWidth(url: string): string {
+  const match = url.match(/[?&]width=(\d+)/);
+  if (!match) return url;
+  const width = parseInt(match[1], 10);
+  const standard = nearestStandardWidth(width);
+  if (standard === width) return url;
+  return url.replace(/([?&]width=)\d+/, `$1${standard}`);
+}
+
+function nearestStandardWidth(width: number): number {
+  const standard = [20, 40, 60, 120, 250, 330, 500, 960, 1280, 1920, 3840];
+  // Prefer the closest standard width, but cap at 960 for quiz images
+  // to keep payloads reasonable while still looking sharp.
+  const effective = Math.min(width, 960);
+  let best = standard[0];
+  let bestDiff = Infinity;
+  for (const s of standard) {
+    if (s > 960) continue;
+    const diff = Math.abs(s - effective);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = s;
+    }
+  }
+  return best;
 }
 
 export function resolveImageUrl(
@@ -48,53 +138,67 @@ export function resolveImageUrl(
   const t = normalize(String(type)).replace(/\s+/g, '_') as ImageType;
   const q = normalize(query);
 
+  let result: string | undefined;
+
   switch (t) {
     case 'flag': {
       const direct = COUNTRY_FLAGS[q];
-      if (direct) return `https://flagcdn.com/w640/${direct}.png`;
-      const partial = findPartial(q, COUNTRY_FLAGS);
-      if (partial) return `https://flagcdn.com/w640/${partial}.png`;
-      return undefined;
+      if (direct) result = `https://flagcdn.com/w640/${direct}.png`;
+      else {
+        const partial = findPartial(q, COUNTRY_FLAGS);
+        if (partial) result = `https://flagcdn.com/w640/${partial}.png`;
+      }
+      break;
     }
 
     case 'landmark': {
-      return LANDMARK_IMAGES[q] || findPartial(q, LANDMARK_IMAGES);
+      result = LANDMARK_IMAGES[q] || findPartial(q, LANDMARK_IMAGES);
+      break;
     }
 
     case 'person': {
-      return PEOPLE_IMAGES[q] || findPartial(q, PEOPLE_IMAGES);
+      result = PEOPLE_IMAGES[q] || findPartial(q, PEOPLE_IMAGES);
+      break;
     }
 
     case 'logo': {
-      return LOGO_IMAGES[q] || findPartial(q, LOGO_IMAGES);
+      result = LOGO_IMAGES[q] || findPartial(q, LOGO_IMAGES);
+      break;
     }
 
     case 'map': {
-      return MAP_IMAGES[q] || findPartial(q, MAP_IMAGES);
+      result = MAP_IMAGES[q] || findPartial(q, MAP_IMAGES);
+      break;
     }
 
     case 'artwork': {
-      return ARTWORK_IMAGES[q] || findPartial(q, ARTWORK_IMAGES);
+      result = ARTWORK_IMAGES[q] || findPartial(q, ARTWORK_IMAGES);
+      break;
     }
 
     case 'animal': {
-      return ANIMAL_IMAGES[q] || findPartial(q, ANIMAL_IMAGES);
+      result = ANIMAL_IMAGES[q] || findPartial(q, ANIMAL_IMAGES);
+      break;
     }
 
     case 'instrument': {
-      return INSTRUMENT_IMAGES[q] || findPartial(q, INSTRUMENT_IMAGES);
+      result = INSTRUMENT_IMAGES[q] || findPartial(q, INSTRUMENT_IMAGES);
+      break;
     }
 
     case 'food': {
-      return FOOD_IMAGES[q] || findPartial(q, FOOD_IMAGES);
+      result = FOOD_IMAGES[q] || findPartial(q, FOOD_IMAGES);
+      break;
     }
 
     case 'nature': {
-      return NATURE_IMAGES[q] || findPartial(q, NATURE_IMAGES);
+      result = NATURE_IMAGES[q] || findPartial(q, NATURE_IMAGES);
+      break;
     }
 
     case 'architecture': {
-      return ARCHITECTURE_IMAGES[q] || findPartial(q, ARCHITECTURE_IMAGES);
+      result = ARCHITECTURE_IMAGES[q] || findPartial(q, ARCHITECTURE_IMAGES);
+      break;
     }
 
     default: {
@@ -114,81 +218,118 @@ export function resolveImageUrl(
       ];
       for (const map of allMaps) {
         const found = map[q] || findPartial(q, map);
-        if (found) return found;
+        if (found) {
+          result = found;
+          break;
+        }
       }
-      return undefined;
     }
   }
+
+  return normalizeWikimediaUrl(result);
 }
 
 export function getRandomImageByType(type: ImageType): string | undefined {
+  let result: string | undefined;
+
   switch (type) {
     case 'flag': {
       const codes = Object.values(COUNTRY_FLAGS);
       const code = pickRandom(codes);
-      return code ? `https://flagcdn.com/w640/${code}.png` : undefined;
+      result = code ? `https://flagcdn.com/w640/${code}.png` : undefined;
+      break;
     }
     case 'landmark':
-      return pickRandom(Object.values(LANDMARK_IMAGES));
+      result = pickRandom(Object.values(LANDMARK_IMAGES));
+      break;
     case 'person':
-      return pickRandom(Object.values(PEOPLE_IMAGES));
+      result = pickRandom(Object.values(PEOPLE_IMAGES));
+      break;
     case 'logo':
-      return pickRandom(Object.values(LOGO_IMAGES));
+      result = pickRandom(Object.values(LOGO_IMAGES));
+      break;
     case 'map':
-      return pickRandom(Object.values(MAP_IMAGES));
+      result = pickRandom(Object.values(MAP_IMAGES));
+      break;
     case 'artwork':
-      return pickRandom(Object.values(ARTWORK_IMAGES));
+      result = pickRandom(Object.values(ARTWORK_IMAGES));
+      break;
     case 'animal':
-      return pickRandom(Object.values(ANIMAL_IMAGES));
+      result = pickRandom(Object.values(ANIMAL_IMAGES));
+      break;
     case 'instrument':
-      return pickRandom(Object.values(INSTRUMENT_IMAGES));
+      result = pickRandom(Object.values(INSTRUMENT_IMAGES));
+      break;
     case 'food':
-      return pickRandom(Object.values(FOOD_IMAGES));
+      result = pickRandom(Object.values(FOOD_IMAGES));
+      break;
     case 'nature':
-      return pickRandom(Object.values(NATURE_IMAGES));
+      result = pickRandom(Object.values(NATURE_IMAGES));
+      break;
     case 'architecture':
-      return pickRandom(Object.values(ARCHITECTURE_IMAGES));
+      result = pickRandom(Object.values(ARCHITECTURE_IMAGES));
+      break;
     default:
-      return undefined;
+      result = undefined;
   }
+
+  return normalizeWikimediaUrl(result);
 }
 
 const TYPE_PATTERNS: Array<{ type: ImageType; patterns: RegExp[] }> = [
+  // Very specific visual types first
   {
     type: 'flag',
     patterns: [/bayrak/, /hangi ulke/, /ulke bayragi/, /ulke hangi/],
   },
   {
-    type: 'landmark',
-    patterns: [/unlu yapi/, /bu yapi/, /hangi sehir/, /sehir hangisi/, /nerede\b/],
-  },
-  {
-    type: 'person',
-    patterns: [/bu kisi/, /kimdir\b/, /hangi bilim insani/, /hangi sanatci/, /hangi sporcu/],
-  },
-  {
-    type: 'animal',
-    patterns: [/bu hayvan/, /hangi hayvan/, /hayvanin adi/],
+    type: 'artwork',
+    patterns: [/tablo/, /ressam/, /eser/, /kime ait/],
   },
   {
     type: 'instrument',
-    patterns: [/bu muzik aleti/, /hangi muzik aleti/, /muzik aletinin adi/],
+    patterns: [/muzik aleti/, /calgi/, /enstruman/],
+  },
+  {
+    type: 'animal',
+    patterns: [/hayvan/, /memeli/, /kus\b/, /balk\b/],
   },
   {
     type: 'food',
-    patterns: [/bu yemek/, /hangi yemek/, /yemegin adi/, /yemek nedir/],
+    patterns: [/yemek/, /yemegi/, /yiyecek/, /icecek/, /tatli\b/],
   },
   {
-    type: 'artwork',
-    patterns: [/bu eser/, /hangi eser/, /tablo/, /kime ait/],
+    type: 'landmark',
+    patterns: [/unlu yapi/, /bu yapi/, /hangi sehir/, /sehir hangisi/, /nerede\b/, /anit\b/],
   },
   {
     type: 'logo',
-    patterns: [/bu marka/, /hangi marka/, /logo/, /logosudur/],
+    patterns: [/marka/, /logo/, /logosu/, /sirketi/],
   },
   {
     type: 'map',
-    patterns: [/haritada/, /bu harita/, /hangi ulke.*harita/],
+    patterns: [/harita/, /haritadaki/],
+  },
+  {
+    type: 'nature',
+    patterns: [/dag\b/, /nehir/, /gol\b/, /orman/, /cologne/, /sahil/, /ada\b/, /yanardag/],
+  },
+  {
+    type: 'architecture',
+    patterns: [/bina/, /gokdelen/, /kopru/, /mimari/, /saray/, /kule\b/],
+  },
+  // Generic "person" patterns last so specific types win
+  {
+    type: 'person',
+    patterns: [
+      /bu kisi/,
+      /hangi kisi/,
+      /hangi bilim insani/,
+      /hangi sanatci/,
+      /hangi sporcu/,
+      /hangi yazar/,
+      /hangi lider/,
+    ],
   },
 ];
 
@@ -218,4 +359,12 @@ export function fallbackResolveImage(
   }
 
   return undefined;
+}
+
+/** Return true if the URL looks like a valid, non-empty image address. */
+export function isValidImageUrl(url: string | undefined | null): boolean {
+  if (!url || typeof url !== 'string') return false;
+  const trimmed = url.trim();
+  if (trimmed.length === 0) return false;
+  return trimmed.startsWith('http://') || trimmed.startsWith('https://');
 }

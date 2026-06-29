@@ -73,12 +73,22 @@ export function GameQuestion({
         >
           <p className="text-xl font-semibold sm:text-2xl">{question.text}</p>
           {question.image && (
-            <img
-              src={question.image}
-              alt="soru görseli"
-              className="mx-auto mt-4 max-h-56 rounded-xl object-contain"
-              loading="lazy"
-            />
+            <div className="mx-auto mt-4 inline-block rounded-xl bg-white/90 p-2 dark:bg-slate-100">
+              <img
+                src={question.image}
+                alt="soru görseli"
+                className="max-h-56 rounded-lg object-contain"
+                loading="lazy"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  const wrapper = img.parentElement;
+                  if (wrapper) wrapper.style.display = 'none';
+                  // Prevent infinite error loops if parent re-renders
+                  img.src =
+                    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                }}
+              />
+            </div>
           )}
         </motion.div>
 

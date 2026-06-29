@@ -258,7 +258,7 @@ export const LANDMARK_IMAGES: Record<string, string> = {
   'taj mahal':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Taj_Mahal_%28Edited%29.jpeg/640px-Taj_Mahal_%28Edited%29.jpeg',
   'big ben':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Big_Ben_2019.jpg/480px-Big_Ben_2019.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Big%20Ben%20at%20sunset%20-%202014-10-27%2017-30.jpg?width=960',
   pyramids:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Kheops-Pyramid.jpg/640px-Kheops-Pyramid.jpg',
   'giza pyramids':
@@ -278,9 +278,9 @@ export const LANDMARK_IMAGES: Record<string, string> = {
   'kurtarıcı i̇sa':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Christ_the_Redeemer_-_Cristo_Redentor.jpg/480px-Christ_the_Redeemer_-_Cristo_Redentor.jpg',
   'burj khalifa':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Burj_Khalifa.jpg/480px-Burj_Khalifa.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Burj_Khalifa_(16260269606).jpg?width=960',
   'sagrada familia':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Sagrada_Familia_2021.jpg/480px-Sagrada_Familia_2021.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Sagrada%20Familia%20March%202015-19bw.jpg?width=960',
   'leaning tower of pisa':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/The_Leaning_Tower_of_Pisa_SB.jpeg/480px-The_Leaning_Tower_of_Pisa_SB.jpeg',
   'pisa kulesi':
@@ -292,27 +292,27 @@ export const LANDMARK_IMAGES: Record<string, string> = {
   'louvre müzesi':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Louvre_Museum_Wikimedia_Commons.jpg/640px-Louvre_Museum_Wikimedia_Commons.jpg',
   acropolis:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Acropolis_of_Athens_2020.jpg/640px-Acropolis_of_Athens_2020.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Attica%2006-13%20Athens%2050%20View%20from%20Philopappos%20-%20Acropolis%20Hill.jpg?width=960',
   akropol:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Acropolis_of_Athens_2020.jpg/640px-Acropolis_of_Athens_2020.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Attica%2006-13%20Athens%2050%20View%20from%20Philopappos%20-%20Acropolis%20Hill.jpg?width=960',
   'mount fuji':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Mount_Fuji_from_Lake_Kawaguchi.jpg/640px-Mount_Fuji_from_Lake_Kawaguchi.jpg',
   'fuji dağı':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Mount_Fuji_from_Lake_Kawaguchi.jpg/640px-Mount_Fuji_from_Lake_Kawaguchi.jpg',
   santorini:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Santorini_Greece.jpg/640px-Santorini_Greece.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/1000%20Three%20domes%20of%20Oia%20in%20Santorini%20Photo%20by%20Giles%20Laurent.jpg?width=960',
   'hagia sophia':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hagia_Sophia_Mars_2013.jpg/640px-Hagia_Sophia_Mars_2013.jpg',
   ayasofya:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hagia_Sophia_Mars_2013.jpg/640px-Hagia_Sophia_Mars_2013.jpg',
   'blue mosque':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Sultan_Ahmed_Mosque_%28Blue_Mosque%29.jpg/640px-Sultan_Ahmed_Mosque_%28Blue_Mosque%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Blue_Mosque_(Istanbul).jpg?width=960',
   'sultanahmet camii':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Sultan_Ahmed_Mosque_%28Blue_Mosque%29.jpg/640px-Sultan_Ahmed_Mosque_%28Blue_Mosque%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Blue_Mosque_(Istanbul).jpg?width=960',
   'topkapi palace':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Gate_of_Salutation_Topkapi_Palace.jpg/640px-Gate_of_Salutation_Topkapi_Palace.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Istanbul%20asv2020-02%20img19%20Topkap%C4%B1%20Palace.jpg?width=960',
   'topkapı sarayı':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Gate_of_Salutation_Topkapi_Palace.jpg/640px-Gate_of_Salutation_Topkapi_Palace.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Istanbul%20asv2020-02%20img19%20Topkap%C4%B1%20Palace.jpg?width=960',
   cappadocia:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Cappadocia_balloons.jpg/640px-Cappadocia_balloons.jpg',
   kapadokya:
@@ -327,8 +327,7 @@ export const LANDMARK_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Grand_Canyon_view_from_Pima_Point_2010.jpg/640px-Grand_Canyon_view_from_Pima_Point_2010.jpg',
   'victoria falls':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Victoria_Falls_2012.jpg/640px-Victoria_Falls_2012.jpg',
-  'angkor wat':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Angkor_Wat_temple.jpg/640px-Angkor_Wat_temple.jpg',
+  'angkor wat': 'https://commons.wikimedia.org/wiki/Special:FilePath/Angkor%20Wat.jpg?width=960',
   stonehenge:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Stonehenge2007_07_30.jpg/640px-Stonehenge2007_07_30.jpg',
   'neuschwanstein castle':
@@ -336,9 +335,9 @@ export const LANDMARK_IMAGES: Record<string, string> = {
   'mont saint-michel':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Le_Mont-Saint-Michel.jpg/640px-Le_Mont-Saint-Michel.jpg',
   'forbidden city':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Forbidden_City_Beijing_China_Gate_of_Divine_Might.jpg/640px-Forbidden_City_Beijing_China_Gate_of_Divine_Might.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Sunset%20of%20the%20Forbidden%20City%202006.JPG?width=960',
   'buckingham palace':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Buckingham_Palace_%28cropped%29.jpg/640px-Buckingham_Palace_%28cropped%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Buckingham%20Palace.jpg?width=960',
   'white house':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/White_House_north_and_south_sides.jpg/640px-White_House_north_and_south_sides.jpg',
   'beyaz saray':
@@ -421,9 +420,9 @@ export const PEOPLE_IMAGES: Record<string, string> = {
   'büyük i̇skender':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Alexander_the_Great_mosaic.jpg/440px-Alexander_the_Great_mosaic.jpg',
   'julius caesar':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Julius_Caesar_-_Andr%C3%A9_Munier.jpg/440px-Julius_Caesar_-_Andr%C3%A9_Munier.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Statue%20of%20Julius%20Caesar%20in%20Turin.jpg?width=960',
   sezar:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Julius_Caesar_-_Andr%C3%A9_Munier.jpg/440px-Julius_Caesar_-_Andr%C3%A9_Munier.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Statue%20of%20Julius%20Caesar%20in%20Turin.jpg?width=960',
   'leonardo dicaprio':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Leonardo_Dicaprio_Cannes_2019.jpg/440px-Leonardo_Dicaprio_Cannes_2019.jpg',
   'marilyn monroe':
@@ -455,19 +454,19 @@ export const ANIMAL_IMAGES: Record<string, string> = {
   'dev panda':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grosser_Panda.JPG/640px-Grosser_Panda.JPG',
   penguen:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/South_Shetland-2016-Deception_Island%E2%80%93Chinstrap_penguin_%28Pygoscelis_antarctica%29.jpg/640px-South_Shetland-2016-Deception_Island%E2%80%93Chinstrap_penguin_%28Pygoscelis_antarctica%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/A_chinstrap_penguin_(Pygoscelis_antarcticus)_on_Deception_Island_in_Antarctica.jpg?width=960',
   penguin:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/South_Shetland-2016-Deception_Island%E2%80%93Chinstrap_penguin_%28Pygoscelis_antarctica%29.jpg/640px-South_Shetland-2016-Deception_Island%E2%80%93Chinstrap_penguin_%28Pygoscelis_antarctica%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/A_chinstrap_penguin_(Pygoscelis_antarcticus)_on_Deception_Island_in_Antarctica.jpg?width=960',
   'beyaz ayı':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Polar_bear_arctic.jpg/640px-Polar_bear_arctic.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Polar%20bear%20(Ursus%20maritimus)%20in%20the%20drift%20ice%20region%20north%20of%20Svalbard.jpg?width=960',
   'polar bear':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Polar_bear_arctic.jpg/640px-Polar_bear_arctic.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Polar%20bear%20(Ursus%20maritimus)%20in%20the%20drift%20ice%20region%20north%20of%20Svalbard.jpg?width=960',
   ' kutup ayısı':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Polar_bear_arctic.jpg/640px-Polar_bear_arctic.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Polar%20bear%20(Ursus%20maritimus)%20in%20the%20drift%20ice%20region%20north%20of%20Svalbard.jpg?width=960',
   kanguru:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Kangaroo_Australia_01_11_2008.jpg/640px-Kangaroo_Australia_01_11_2008.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Eastern%20Grey%20Kangaroo%20Feeding%20edited.jpg?width=960',
   kangaroo:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Kangaroo_Australia_01_11_2008.jpg/640px-Kangaroo_Australia_01_11_2008.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Eastern%20Grey%20Kangaroo%20Feeding%20edited.jpg?width=960',
   koala:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Koala_climbing_tree.jpg/640px-Koala_climbing_tree.jpg',
   baykuş:
@@ -478,9 +477,9 @@ export const ANIMAL_IMAGES: Record<string, string> = {
   eagle:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Golden_Eagle_flying.jpg/640px-Golden_Eagle_flying.jpg',
   yunus:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Dolphin_Marine_World.jpg/640px-Dolphin_Marine_World.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Eilat%20Dolphin%20Reef%20(3).jpg?width=960',
   dolphin:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Dolphin_Marine_World.jpg/640px-Dolphin_Marine_World.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Eilat%20Dolphin%20Reef%20(3).jpg?width=960',
   köpekbalığı:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Great_white_shark_south_africa.jpg/640px-Great_white_shark_south_africa.jpg',
   shark:
@@ -512,31 +511,25 @@ export const ANIMAL_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Vulpes_vulpes_sitting.jpg/640px-Vulpes_vulpes_sitting.jpg',
   kurt: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Eurasian_wolf_2.jpg/640px-Eurasian_wolf_2.jpg',
   wolf: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Eurasian_wolf_2.jpg/640px-Eurasian_wolf_2.jpg',
-  geyik:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Reindeer_fawn.jpg/640px-Reindeer_fawn.jpg',
-  deer: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Reindeer_fawn.jpg/640px-Reindeer_fawn.jpg',
-  reindeer:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Reindeer_fawn.jpg/640px-Reindeer_fawn.jpg',
+  geyik: 'https://commons.wikimedia.org/wiki/Special:FilePath/Red%20Deer%20Poing.JPG?width=960',
+  deer: 'https://commons.wikimedia.org/wiki/Special:FilePath/Red%20Deer%20Poing.JPG?width=960',
+  reindeer: 'https://commons.wikimedia.org/wiki/Special:FilePath/Red%20Deer%20Poing.JPG?width=960',
   'ren geyiği':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Reindeer_fawn.jpg/640px-Reindeer_fawn.jpg',
-  balina:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Whale_noaa.jpg/640px-Blue_Whale_noaa.jpg',
-  whale:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Whale_noaa.jpg/640px-Blue_Whale_noaa.jpg',
-  'mavi balina':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Whale_noaa.jpg/640px-Blue_Whale_noaa.jpg',
-  'blue whale':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Blue_Whale_noaa.jpg/640px-Blue_Whale_noaa.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Red%20Deer%20Poing.JPG?width=960',
+  balina: 'https://commons.wikimedia.org/wiki/Special:FilePath/Blue%20Whale.jpg?width=960',
+  whale: 'https://commons.wikimedia.org/wiki/Special:FilePath/Blue%20Whale.jpg?width=960',
+  'mavi balina': 'https://commons.wikimedia.org/wiki/Special:FilePath/Blue%20Whale.jpg?width=960',
+  'blue whale': 'https://commons.wikimedia.org/wiki/Special:FilePath/Blue%20Whale.jpg?width=960',
   kelebek:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Monarch_In_May.jpg/640px-Monarch_In_May.jpg',
   butterfly:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Monarch_In_May.jpg/640px-Monarch_In_May.jpg',
   'monarch butterfly':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Monarch_In_May.jpg/640px-Monarch_In_May.jpg',
-  arı: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Honey_bee_on_apple_blossom.jpg/640px-Honey_bee_on_apple_blossom.jpg',
-  bee: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Honey_bee_on_apple_blossom.jpg/640px-Honey_bee_on_apple_blossom.jpg',
+  arı: 'https://commons.wikimedia.org/wiki/Special:FilePath/European%20honey%20bee%20extracts%20nectar.jpg?width=960',
+  bee: 'https://commons.wikimedia.org/wiki/Special:FilePath/European%20honey%20bee%20extracts%20nectar.jpg?width=960',
   'honey bee':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Honey_bee_on_apple_blossom.jpg/640px-Honey_bee_on_apple_blossom.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/European%20honey%20bee%20extracts%20nectar.jpg?width=960',
 };
 
 // Müzik aletleri
@@ -563,19 +556,17 @@ export const INSTRUMENT_IMAGES: Record<string, string> = {
   flute:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Western_concert_flute.jpg/480px-Western_concert_flute.jpg',
   trampet:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Yamaha_Trumpet_YTR-6335S.jpg/480px-Yamaha_Trumpet_YTR-6335S.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Yamaha%20Trumpet%20YTR-8335LA%20crop.jpg?width=960',
   trumpet:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Yamaha_Trumpet_YTR-6335S.jpg/480px-Yamaha_Trumpet_YTR-6335S.jpg',
-  saksofon:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Yamaha_Saxophone_YAS-62II.jpg/480px-Yamaha_Saxophone_YAS-62II.jpg',
-  saxophone:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Yamaha_Saxophone_YAS-62II.jpg/480px-Yamaha_Saxophone_YAS-62II.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Yamaha%20Trumpet%20YTR-8335LA%20crop.jpg?width=960',
+  saksofon: 'https://commons.wikimedia.org/wiki/Special:FilePath/A_Saxophone.jpg?width=960',
+  saxophone: 'https://commons.wikimedia.org/wiki/Special:FilePath/A_Saxophone.jpg?width=960',
   korno:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/French_horn_front.png/480px-French_horn_front.png',
   'french horn':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/French_horn_front.png/480px-French_horn_front.png',
-  arp: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Celtic_Harp.jpg/480px-Celtic_Harp.jpg',
-  harp: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Celtic_Harp.jpg/480px-Celtic_Harp.jpg',
+  arp: 'https://commons.wikimedia.org/wiki/Special:FilePath/A%20musical%20instrument.%20A%20harp.jpg?width=960',
+  harp: 'https://commons.wikimedia.org/wiki/Special:FilePath/A%20musical%20instrument.%20A%20harp.jpg?width=960',
   viyola:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Bratsche.jpg/480px-Bratsche.jpg',
   viola:
@@ -588,18 +579,18 @@ export const INSTRUMENT_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/AGK_bass1_full.jpg/480px-AGK_bass1_full.jpg',
   'double bass':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/AGK_bass1_full.jpg/480px-AGK_bass1_full.jpg',
-  bateri: '',
+  bateri:
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Drum_kit.jpg/480px-Drum_kit.jpg',
   akordeon:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Accord%C3%A9on_diato%C3%AFque.jpg/480px-Accord%C3%A9on_diato%C3%AFque.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Blind%20accordion%20player.jpg?width=960',
   accordion:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Accord%C3%A9on_diato%C3%AFque.jpg/480px-Accord%C3%A9on_diato%C3%AFque.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Blind%20accordion%20player.jpg?width=960',
   mandolin:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Mandolin_1.jpg/480px-Mandolin_1.jpg',
-  ukulele:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Ukulele-standing_512x512.png/480px-Ukulele-standing_512x512.png',
+  ukulele: 'https://commons.wikimedia.org/wiki/Special:FilePath/Ukulele.jpg?width=960',
   kanun:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Qanun_%28instrument%29.jpg/480px-Qanun_%28instrument%29.jpg',
-  saz: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Turkish_saz.jpg/480px-Turkish_saz.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Qanun%20(instrument)%20Musical%20Instrument%2001.jpg?width=960',
+  saz: 'https://commons.wikimedia.org/wiki/Special:FilePath/SAZ%20Instrument%205270.jpg?width=960',
   ney: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Ney.jpg/480px-Ney.jpg',
 };
 
@@ -616,8 +607,9 @@ export const ARTWORK_IMAGES: Record<string, string> = {
   'yıldızlı gece':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/640px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg',
   'the persistence of memory':
-    'https://upload.wikimedia.org/wikipedia/en/d/dd/The_Persistence_of_Memory.jpg',
-  memory: 'https://upload.wikimedia.org/wikipedia/en/d/dd/The_Persistence_of_Memory.jpg',
+    'https://en.wikipedia.org/wiki/Special:FilePath/The%20Persistence%20of%20Memory.jpg?width=960',
+  memory:
+    'https://en.wikipedia.org/wiki/Special:FilePath/The%20Persistence%20of%20Memory.jpg?width=960',
   'the last supper':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/The_Last_Supper_-_Leonardo_Da_Vinci_-_High_Resolution_32x16.jpg/640px-The_Last_Supper_-_Leonardo_Da_Vinci_-_High_Resolution_32x16.jpg',
   'son akşam yemeği':
@@ -636,7 +628,8 @@ export const ARTWORK_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/640px-Great_Wave_off_Kanagawa2.jpg',
   'kanagawa büyük dalgası':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Wave_off_Kanagawa2.jpg/640px-Great_Wave_off_Kanagawa2.jpg',
-  guernica: 'https://upload.wikimedia.org/wikipedia/en/7/74/PicassoGuernica.jpg',
+  guernica:
+    'https://en.wikipedia.org/wiki/Special:FilePath/Pablo%20Picasso%27s%20Guernica.jpg?width=960',
   'the night watch':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_HD.jpg/640px-The_Night_Watch_-_HD.jpg',
   'gece nöbeti':
@@ -657,40 +650,35 @@ export const FOOD_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/640px-Eq_it-na_pizza-margherita_sep2005_sml.jpg',
   hamburger:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Hamburger_%28black_bg%29.jpg/640px-Hamburger_%28black_bg%29.jpg',
-  döner:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/D%C3%B6ner_kebab_-_Ankara.jpg/640px-D%C3%B6ner_kebab_-_Ankara.jpg',
+  döner: 'https://commons.wikimedia.org/wiki/Special:FilePath/D%C3%B6ner%20kebab.jpg?width=960',
   'döner kebap':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/D%C3%B6ner_kebab_-_Ankara.jpg/640px-D%C3%B6ner_kebab_-_Ankara.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/D%C3%B6ner%20kebab.jpg?width=960',
   lahmacun:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Lahmacun.jpg/640px-Lahmacun.jpg',
   baklava:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Baklava%281%29.png/640px-Baklava%281%29.png',
   mantı: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Manti.jpg/640px-Manti.jpg',
   'çiğ köfte':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Cig_kofte.jpg/640px-Cig_kofte.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/%C3%87i%C4%9F%20k%C3%B6fte.jpg?width=960',
   pide: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Turkish_pide.jpg/640px-Turkish_pide.jpg',
   paella:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Paella_de_marisco.jpg/640px-Paella_de_marisco.jpg',
   tacos:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/001_Tacos_de_carnitas%2C_carne_asada_y_al_pastor.jpg/640px-001_Tacos_de_carnitas%2C_carne_asada_y_al_pastor.jpg',
-  pasta:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fettuccine_al_ragu.jpg/640px-Fettuccine_al_ragu.jpg',
-  spaghetti:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fettuccine_al_ragu.jpg/640px-Fettuccine_al_ragu.jpg',
+  pasta: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pasta.jpg?width=960',
+  spaghetti: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pasta.jpg?width=960',
   ramen:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Shoyu_Ramen.jpg/640px-Shoyu_Ramen.jpg',
   croissant:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Croissant%2C_cross_section.jpg/640px-Croissant%2C_cross_section.jpg',
-  macaron:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Macarons%2C_French.jpg/640px-Macarons%2C_French.jpg',
+  macaron: 'https://commons.wikimedia.org/wiki/Special:FilePath/Macarons.jpg?width=960',
   falafel:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Falafel_balls.jpg/640px-Falafel_balls.jpg',
   hummus:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Hummus_from_The_Nile.jpg/640px-Hummus_from_The_Nile.jpg',
   kimchi:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Korean_cuisine-Kimchi-01.jpg/640px-Korean_cuisine-Kimchi-01.jpg',
-  'dim sum':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Dim_sum_dishes.jpg/640px-Dim_sum_dishes.jpg',
+  'dim sum': 'https://commons.wikimedia.org/wiki/Special:FilePath/Dim%20sum.jpg?width=960',
   burrito:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Burrito_with_rice.jpg/640px-Burrito_with_rice.jpg',
 };
@@ -711,49 +699,46 @@ export const NATURE_IMAGES: Record<string, string> = {
     'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg/640px-Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg',
   everest:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg/640px-Mount_Everest_as_seen_from_Drukair2_PLW_edit.jpg',
-  sahara:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Sahara_desert_landscape.jpg/640px-Sahara_desert_landscape.jpg',
+  sahara: 'https://commons.wikimedia.org/wiki/Special:FilePath/Sahara%20desert.jpg?width=960',
   'amazon rainforest':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Amazon_rainforest.jpg/640px-Amazon_rainforest.jpg',
   'amazon yağmur ormanları':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Amazon_rainforest.jpg/640px-Amazon_rainforest.jpg',
   'great barrier reef':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Barrier_Reef_%28satellite_image%29.jpg/640px-Great_Barrier_Reef_%28satellite_image%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Barrier%20Reef.jpg?width=960',
   'büyük set resifi':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Great_Barrier_Reef_%28satellite_image%29.jpg/640px-Great_Barrier_Reef_%28satellite_image%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Great%20Barrier%20Reef.jpg?width=960',
   matterhorn:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Matterhorn_from_Domh%C3%BCtte_-_2.jpg/640px-Matterhorn_from_Domh%C3%BCtte_-_2.jpg',
   uluru:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Uluru_Australia.jpg/640px-Uluru_Australia.jpg',
   eyjafjallajökull:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Eyjafjallajokull_April_17_2010.jpg/640px-Eyjafjallajokull_April_17_2010.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Eyjafjallaj%C3%B6kull.jpg?width=960',
 };
 
 // Mimarlık yapıları (landmark dışında)
 export const ARCHITECTURE_IMAGES: Record<string, string> = {
   'burj al arab':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Burj_Al_Arab%2C_Dubai%2C_by_joi_ito_2018.jpg/480px-Burj_Al_Arab%2C_Dubai%2C_by_joi_ito_2018.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Burj%20Al%20Arab%2C%20Dubai.jpg?width=960',
   'burj khalifa':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Burj_Khalifa.jpg/480px-Burj_Khalifa.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Burj_Khalifa_(16260269606).jpg?width=960',
   'empire state building':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/480px-Empire_State_Building_%28aerial_view%29.jpg',
-  'taipei 101':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Taipei_101_2009.jpg/480px-Taipei_101_2009.jpg',
+  'taipei 101': 'https://commons.wikimedia.org/wiki/Special:FilePath/Taipei%20101.jpg?width=960',
   'petronas towers':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Petronas_Towers_%282010%29.jpg/480px-Petronas_Towers_%282010%29.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Petronas%20Towers.jpg?width=960',
   'guggenheim museum':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Guggenheim_Museum_Bilbao.jpg/480px-Guggenheim_Museum_Bilbao.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Guggenheim%20Bilbao.jpg?width=960',
   fallingwater:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Fallingwater_-_DSC05662.JPG/480px-Fallingwater_-_DSC05662.JPG',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Wrightfallingwater.jpg?width=960',
   'sydney harbour bridge':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Sydney_Harbour_Bridge_Night.jpg/480px-Sydney_Harbour_Bridge_Night.jpg',
-  pantheon:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Pantheon_Rome_2011.jpg/480px-Pantheon_Rome_2011.jpg',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Sydney%20Harbour%20Bridge.jpg?width=960',
+  pantheon: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pantheon%20Rome.jpg?width=960',
   'notre dame':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Notre-Dame_de_Paris_2013-07-24.jpg/480px-Notre-Dame_de_Paris_2013-07-24.jpg',
 };
 
-// Marka logoları (Wikimedia Commons'dan CC/adil kullanım)
+// Marka logoları (Wikimedia Commons / Wikipedia üzerinden)
 export const LOGO_IMAGES: Record<string, string> = {
   apple:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/200px-Apple_logo_black.svg.png',
@@ -765,7 +750,7 @@ export const LOGO_IMAGES: Record<string, string> = {
   bmw: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BMW.svg/200px-BMW.svg.png',
   adidas:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/250px-Adidas_Logo.svg.png',
-  puma: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Puma_Logo.svg/200px-Puma_Logo.svg.png',
+  puma: 'https://commons.wikimedia.org/wiki/Special:FilePath/Puma-logo-(text).svg?width=960',
   'coca cola':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
   cocacola:
@@ -773,7 +758,7 @@ export const LOGO_IMAGES: Record<string, string> = {
   pepsi:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Pepsi_logo_2014.svg/200px-Pepsi_logo_2014.svg.png',
   starbucks:
-    'https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/200px-Starbucks_Corporation_Logo_2011.svg.png',
+    'https://en.wikipedia.org/wiki/Special:FilePath/Starbucks%20Coffee%20Logo.svg?width=960',
   amazon:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/300px-Amazon_logo.svg.png',
   google:
@@ -800,12 +785,10 @@ export const LOGO_IMAGES: Record<string, string> = {
   volkswagen:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Volkswagen_logo_2019.svg/200px-Volkswagen_logo_2019.svg.png',
   audi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Audi_logo.svg/200px-Audi_logo.svg.png',
-  ferrari:
-    'https://upload.wikimedia.org/wikipedia/en/thumb/d/d1/Ferrari-Logo.svg/150px-Ferrari-Logo.svg.png',
-  lamborghini:
-    'https://upload.wikimedia.org/wikipedia/en/thumb/d/db/Lamborghini_Logo.svg/200px-Lamborghini_Logo.svg.png',
+  ferrari: 'https://en.wikipedia.org/wiki/Special:FilePath/Prancing%20horse.svg?width=960',
+  lamborghini: 'https://en.wikipedia.org/wiki/Special:FilePath/Lamborghini%20Logo.svg?width=960',
   porsche:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Porsche_hood_ornament.svg/200px-Porsche_hood_ornament.svg.png',
+    'https://commons.wikimedia.org/wiki/Special:FilePath/Porsche-Automarken-Logo.jpg?width=960',
 };
 
 // Ülke haritaları (orthographic projection)
