@@ -22,7 +22,7 @@ export function getSocket(): QuizSocket {
   }
   const token = localStorage.getItem(STORAGE_KEYS.accessToken);
   socket = io(`${SOCKET_URL}${SOCKET_NAMESPACE}`, {
-    transports: ['websocket'],
+    transports: ['polling', 'websocket'],
     auth: token ? { token } : {},
     reconnection: true,
     reconnectionAttempts: 10,

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getSocket, disconnectSocket, type QuizSocket } from '../socket/socketClient';
 
 interface UseSocketOptions {
@@ -7,29 +7,29 @@ interface UseSocketOptions {
 
 export function useSocket(options: UseSocketOptions = { autoConnect: true }) {
   const { autoConnect } = options;
-  const socketRef = useRef<QuizSocket | null>(null);
+  const [socket, setSocket] = useState<QuizSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     if (!autoConnect) return;
-    const socket = getSocket();
-    socketRef.current = socket;
+    const s = getSocket();
+    setSocket(s);
 
     const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    setIsConnected(socket.connected);
+    s.on('connect', onConnect);
+    s.on('disconnect', onDisconnect);
+    setIsConnected(s.connected);
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
+      s.off('connect', onConnect);
+      s.off('disconnect', onDisconnect);
     };
   }, [autoConnect]);
 
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
     disconnect: disconnectSocket,
   };
