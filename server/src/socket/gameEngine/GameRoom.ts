@@ -348,6 +348,17 @@ export class GameRoom {
 
   private async endQuestion(): Promise<void> {
     if (this.isEndingQuestion) return;
+    const elapsed = Date.now() - this.questionStartedAt;
+    if (elapsed < this.MIN_QUESTION_MS) {
+      if (!this.minQuestionTimeout) {
+        const delay = this.MIN_QUESTION_MS - elapsed;
+        this.minQuestionTimeout = setTimeout(() => {
+          this.minQuestionTimeout = null;
+          void this.endQuestion();
+        }, delay);
+      }
+      return;
+    }
     this.isEndingQuestion = true;
     if (this.minQuestionTimeout) {
       clearTimeout(this.minQuestionTimeout);
