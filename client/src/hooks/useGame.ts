@@ -87,8 +87,9 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
       }),
     );
     cleanups.push(
-      gameListeners.on(socket, 'game:started', () => {
+      gameListeners.on(socket, 'game:started', ({ gameMode }) => {
         store.setStatus('active');
+        store.setGameMode(gameMode);
       }),
     );
     cleanups.push(
@@ -138,6 +139,7 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
     cleanups.push(
       gameListeners.on(socket, 'game:reconnected', ({ gameState }) => {
         store.syncState(gameState);
+        if (gameState.gameMode) store.setGameMode(gameState.gameMode);
       }),
     );
     cleanups.push(
@@ -166,6 +168,19 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
       gameListeners.on(socket, 'game:phone_a_friend_hint', ({ hint }) => {
         setPhoneAFriendHint(hint);
         toast(hint, { icon: '📞', duration: 8000 });
+      }),
+    );
+
+    cleanups.push(
+      gameListeners.on(socket, 'host:drawing_target', ({ target }) => {
+        store.setDrawingTarget(target);
+      }),
+    );
+
+    cleanups.push(
+      gameListeners.on(socket, 'drawing:results', ({ target, results }) => {
+        store.setDrawingTarget(target);
+        store.setDrawingResults(results);
       }),
     );
 
@@ -241,6 +256,15 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
     [socket, pin],
   );
 
+  const submitDrawing = useCallback(
+    (image: string) => {
+      if (!socket || !pin) return;
+      store.selectAnswer(0);
+      gameEvents.submitDrawing(socket, pin, image);
+    },
+    [socket, pin, store],
+  );
+
   return {
     socket,
     isConnected,
@@ -254,6 +278,7 @@ export function useGame(pin: string | null, role: 'host' | 'player') {
     sendChat,
     leaveLobby,
     useJoker,
+    submitDrawing,
     jokers,
     phoneAFriendHint,
   };

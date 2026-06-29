@@ -3,6 +3,7 @@ import {
   ARCHITECTURE_IMAGES,
   ARTWORK_IMAGES,
   COUNTRY_FLAGS,
+  FILM_IMAGES,
   FOOD_IMAGES,
   INSTRUMENT_IMAGES,
   LANDMARK_IMAGES,
@@ -166,6 +167,11 @@ export function resolveImageUrl(
       break;
     }
 
+    case 'film': {
+      result = FILM_IMAGES[q] || findPartial(q, FILM_IMAGES);
+      break;
+    }
+
     case 'map': {
       result = MAP_IMAGES[q] || findPartial(q, MAP_IMAGES);
       break;
@@ -208,6 +214,7 @@ export function resolveImageUrl(
         LANDMARK_IMAGES,
         PEOPLE_IMAGES,
         LOGO_IMAGES,
+        FILM_IMAGES,
         MAP_IMAGES,
         ARTWORK_IMAGES,
         ANIMAL_IMAGES,
@@ -247,6 +254,9 @@ export function getRandomImageByType(type: ImageType): string | undefined {
       break;
     case 'logo':
       result = pickRandom(Object.values(LOGO_IMAGES));
+      break;
+    case 'film':
+      result = pickRandom(Object.values(FILM_IMAGES));
       break;
     case 'map':
       result = pickRandom(Object.values(MAP_IMAGES));

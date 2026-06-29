@@ -7,6 +7,7 @@ import { GameLobby } from '../../components/game/GameLobby';
 import { GameQuestion } from '../../components/game/GameQuestion';
 import { GameLeaderboard } from '../../components/game/GameLeaderboard';
 import { GameResults } from '../../components/game/GameResults';
+import { DrawingResults } from '../../components/game/DrawingResults';
 import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES } from '../../lib/constants';
@@ -95,6 +96,7 @@ export function GameHostPage() {
                 navigate(ROUTES.dashboard);
               }}
               quizTitle={quizTitle}
+              gameMode={store.gameMode}
             />
           </motion.div>
         )}
@@ -107,7 +109,31 @@ export function GameHostPage() {
         )}
 
         {/* Active question */}
-        {status === 'active' && store.currentQuestion && (
+        {status === 'active' && store.currentQuestion && store.gameMode === 'drawing_battle' && (
+          <motion.div key="active-drawing" className="flex flex-1 flex-col">
+            <HostBar
+              pin={pin ?? ''}
+              answeredCount={store.answeredCount}
+              total={store.participants.length}
+              distribution={store.answerDistribution}
+              onEnd={() => {
+                void endGame();
+                navigate(ROUTES.dashboard);
+              }}
+            />
+            <div className="flex flex-1 flex-col items-center justify-center p-4">
+              <div className="glass p-6 text-center">
+                <p className="text-sm text-text-muted">Hedef kelime (sadece host görür)</p>
+                <p className="text-3xl font-bold text-primary">{store.currentQuestion.text}</p>
+              </div>
+              <p className="mt-4 text-sm text-text-muted">
+                Oyuncular çizimlerini gönderiyor… ({store.answeredCount}/{store.participants.length}
+                )
+              </p>
+            </div>
+          </motion.div>
+        )}
+        {status === 'active' && store.currentQuestion && store.gameMode !== 'drawing_battle' && (
           <motion.div key="active" className="flex flex-1 flex-col">
             <HostBar
               pin={pin ?? ''}
@@ -124,6 +150,7 @@ export function GameHostPage() {
             </div>
             <GameQuestion
               question={store.currentQuestion}
+              gameMode={store.gameMode}
               index={store.questionIndex}
               total={store.totalQuestions}
               remaining={store.remainingTime}
@@ -134,6 +161,7 @@ export function GameHostPage() {
               showResult={false}
               explanation=""
               answeredCount={store.answeredCount}
+              answerStats={store.answerStats}
               myResult={null}
               onPick={handlePick}
               fiftyFiftyRemoved={store.fiftyFiftyRemoved}
@@ -142,36 +170,63 @@ export function GameHostPage() {
         )}
 
         {/* Question results */}
-        {status === 'question_results' && store.currentQuestion && (
-          <motion.div key="qresults" className="flex flex-1 flex-col">
-            <HostBar
-              pin={pin ?? ''}
-              answeredCount={store.answeredCount}
-              total={store.participants.length}
-              distribution={store.answerDistribution}
-              onEnd={() => {
-                void endGame();
-                navigate(ROUTES.dashboard);
-              }}
-            />
-            <GameQuestion
-              question={store.currentQuestion}
-              index={store.questionIndex}
-              total={store.totalQuestions}
-              remaining={0}
-              timeLimit={store.timeLimit}
-              selectedAnswer={store.selectedAnswer}
-              correctAnswer={store.correctAnswer}
-              hasAnswered={true}
-              showResult={true}
-              explanation={store.explanation}
-              answeredCount={store.answeredCount}
-              myResult={store.myResult}
-              onPick={() => undefined}
-            />
-            <p className="pb-6 text-center text-sm text-text-muted">Sıralama hazırlanıyor…</p>
-          </motion.div>
-        )}
+        {status === 'question_results' &&
+          store.currentQuestion &&
+          store.gameMode === 'drawing_battle' && (
+            <motion.div key="qresults-drawing" className="flex flex-1 flex-col">
+              <HostBar
+                pin={pin ?? ''}
+                answeredCount={store.answeredCount}
+                total={store.participants.length}
+                distribution={store.answerDistribution}
+                onEnd={() => {
+                  void endGame();
+                  navigate(ROUTES.dashboard);
+                }}
+              />
+              {store.drawingTarget && store.drawingResults.length > 0 ? (
+                <DrawingResults target={store.drawingTarget} results={store.drawingResults} />
+              ) : (
+                <p className="flex flex-1 items-center justify-center text-text-muted">
+                  Çizimler analiz ediliyor…
+                </p>
+              )}
+            </motion.div>
+          )}
+        {status === 'question_results' &&
+          store.currentQuestion &&
+          store.gameMode !== 'drawing_battle' && (
+            <motion.div key="qresults" className="flex flex-1 flex-col">
+              <HostBar
+                pin={pin ?? ''}
+                answeredCount={store.answeredCount}
+                total={store.participants.length}
+                distribution={store.answerDistribution}
+                onEnd={() => {
+                  void endGame();
+                  navigate(ROUTES.dashboard);
+                }}
+              />
+              <GameQuestion
+                question={store.currentQuestion}
+                gameMode={store.gameMode}
+                index={store.questionIndex}
+                total={store.totalQuestions}
+                remaining={0}
+                timeLimit={store.timeLimit}
+                selectedAnswer={store.selectedAnswer}
+                correctAnswer={store.correctAnswer}
+                hasAnswered={true}
+                showResult={true}
+                explanation={store.explanation}
+                answeredCount={store.answeredCount}
+                answerStats={store.answerStats}
+                myResult={store.myResult}
+                onPick={() => undefined}
+              />
+              <p className="pb-6 text-center text-sm text-text-muted">Sıralama hazırlanıyor…</p>
+            </motion.div>
+          )}
 
         {/* Leaderboard (auto-advances) */}
         {status === 'leaderboard' && (

@@ -24,6 +24,27 @@ enum QuestionType {
   image_choice
 }
 
+enum GameMode {
+  classic
+  logo_guess
+  flag_guess
+  film_guess
+  emoji_riddle
+  true_false_storm
+  math_sprint
+  millionaire
+  sort_events
+  matching
+  memory_match
+  simon_says
+  pictionary
+  fibbage
+  survey
+  meme_war
+  mastermind
+  drawing_battle
+}
+
 enum AnswerColor {
   red
   blue
@@ -79,6 +100,8 @@ model Quiz {
   creatorId   String
   category    String     @default("Genel") @db.VarChar(100)
   difficulty  Difficulty @default(medium)
+  gameMode    GameMode   @default(classic)
+  modeSettings Json      @default("{}")
   tags        String[]
   isPublic    Boolean    @default(false)
 
@@ -148,6 +171,8 @@ model GameSession {
   quizId               String
   hostId               String
   status               GameStatus @default(lobby)
+  gameMode             GameMode   @default(classic)
+  modeSettings         Json       @default("{}")
   currentQuestionIndex Int        @default(0)
   startedAt            DateTime?
   finishedAt           DateTime?

@@ -11,6 +11,7 @@ interface GameAnswerGridProps {
   showResult: boolean;
   onPick: (index: number) => void;
   fiftyFiftyRemoved?: number[];
+  hideCorrectHighlight?: boolean;
 }
 
 const labels = ['A', 'B', 'C', 'D'];
@@ -23,6 +24,7 @@ export function GameAnswerGrid({
   showResult,
   onPick,
   fiftyFiftyRemoved = [],
+  hideCorrectHighlight = false,
 }: GameAnswerGridProps) {
   return (
     <div className="grid w-full gap-3 sm:gap-4 sm:grid-cols-2">
@@ -31,9 +33,11 @@ export function GameAnswerGrid({
         const color = (a.color as AnswerColor) ?? 'blue';
         const bg = ANSWER_COLORS[color] ?? '#3B82F6';
         const shape = ANSWER_ICONS[color] ?? '●';
-        const isCorrect = showResult && correctAnswer === i;
-        const isWrongPick = showResult && selectedAnswer === i && correctAnswer !== i;
-        const isFaded = showResult && correctAnswer !== i && selectedAnswer !== i;
+        const isCorrect = showResult && !hideCorrectHighlight && correctAnswer === i;
+        const isWrongPick =
+          showResult && !hideCorrectHighlight && selectedAnswer === i && correctAnswer !== i;
+        const isFaded =
+          showResult && !hideCorrectHighlight && correctAnswer !== i && selectedAnswer !== i;
         if (isRemoved) return null;
         return (
           <motion.button

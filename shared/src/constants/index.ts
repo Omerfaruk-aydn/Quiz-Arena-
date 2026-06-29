@@ -70,4 +70,67 @@ export const EMOJI_AVATARS = [
   '🐹',
 ] as const;
 
+export const GAME_MODES = [
+  'classic',
+  'logo_guess',
+  'flag_guess',
+  'film_guess',
+  'emoji_riddle',
+  'true_false_storm',
+  'math_sprint',
+  'millionaire',
+  'sort_events',
+  'matching',
+  'memory_match',
+  'simon_says',
+  'pictionary',
+  'fibbage',
+  'survey',
+  'meme_war',
+  'mastermind',
+  'drawing_battle',
+] as const;
+
+export const GAME_MODE_LABELS: Record<(typeof GAME_MODES)[number], string> = {
+  classic: 'Klasik Quiz',
+  logo_guess: 'Logo Tahmin',
+  flag_guess: 'Bayrak & Başkent',
+  film_guess: 'Film & Sahne',
+  emoji_riddle: 'Emoji Bulmaca',
+  true_false_storm: 'Doğru/Yanlış Fırtınası',
+  math_sprint: 'Matematik Sprint',
+  millionaire: 'Kim Milyoner Olmak İster',
+  sort_events: 'Tarihi Sırala',
+  matching: 'Eşleştirme Yarışması',
+  memory_match: 'Hafıza Kartları',
+  simon_says: 'Simon Says',
+  pictionary: 'Çiz ve Tahmin Et',
+  fibbage: 'Yalan Makinesi',
+  survey: 'Anket ve Tahmin',
+  meme_war: 'Meme Savaşı',
+  mastermind: 'Mastermind',
+  drawing_battle: 'Çizim Savaşı (AI)',
+};
+
+export const GAME_MODE_ICONS: Record<(typeof GAME_MODES)[number], string> = {
+  classic: '🎯',
+  logo_guess: '🏷️',
+  flag_guess: '🚩',
+  film_guess: '🎬',
+  emoji_riddle: '😀',
+  true_false_storm: '⚡',
+  math_sprint: '🔢',
+  millionaire: '💰',
+  sort_events: '📜',
+  matching: '🔗',
+  memory_match: '🃏',
+  simon_says: '🎹',
+  pictionary: '🎨',
+  fibbage: '🤥',
+  survey: '📊',
+  meme_war: '😂',
+  mastermind: '🧠',
+  drawing_battle: '✏️',
+};
+
 export const SOCKET_NAMESPACE = '/game';

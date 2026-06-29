@@ -45,10 +45,22 @@ export interface ServerToClientEvents {
   'game:error': (payload: { code: string; message: string }) => void;
   'game:reconnected': (payload: { gameState: ReconnectStateDTO }) => void;
   'host:answer_distribution': (payload: { distribution: number[] }) => void;
-  'game:started': (payload: { pin: string; status: GameStatus }) => void;
+  'game:started': (payload: { pin: string; status: GameStatus; gameMode: string }) => void;
   'game:joker_result': (payload: { result: JokerResult }) => void;
   'game:phone_a_friend_hint': (payload: { hint: string }) => void;
   'game:keepalive': (payload: { ts: number }) => void;
+  'host:drawing_target': (payload: { target: string }) => void;
+  'drawing:results': (payload: {
+    target: string;
+    results: Array<{
+      participantId: string;
+      nickname: string;
+      emoji: string;
+      score: number;
+      feedback: string;
+      image: string | null;
+    }>;
+  }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -90,6 +102,7 @@ export interface ClientToServerEvents {
     payload: { pin: string; type: JokerType },
     ack?: (res: { ok: boolean; error?: string }) => void,
   ) => void;
+  'drawing:submit': (payload: { pin: string; image: string }) => void;
 }
 
 export interface InterServerEvents {

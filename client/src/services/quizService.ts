@@ -12,6 +12,8 @@ export interface CreateQuizInput {
   description?: string;
   category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
+  gameMode?: string;
+  modeSettings?: Record<string, unknown>;
   tags?: string[];
   isPublic?: boolean;
   settings?: Partial<Quiz['settings']>;

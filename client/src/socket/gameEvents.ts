@@ -53,4 +53,7 @@ export const gameEvents = {
     type: JokerType,
     ack?: (res: { ok: boolean; error?: string }) => void,
   ) => socket.emit('game:use_joker', { pin, type }, ack),
+
+  submitDrawing: (socket: QuizSocket, pin: string, image: string) =>
+    socket.emit('drawing:submit', { pin, image }),
 };

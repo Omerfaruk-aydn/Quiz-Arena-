@@ -89,7 +89,9 @@ describe('getRandomImageByType', () => {
 
   it('returns a normalized Wikimedia URL for artwork', () => {
     const out = getRandomImageByType('artwork');
-    expect(out).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/Special:FilePath\//);
+    expect(out).toMatch(
+      /^https:\/\/(commons\.wikimedia\.org|en\.wikipedia\.org)\/wiki\/Special:FilePath\//,
+    );
   });
 });
 

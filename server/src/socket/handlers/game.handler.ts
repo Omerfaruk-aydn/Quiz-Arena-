@@ -72,4 +72,10 @@ export function connectGameHandler(_io: QuizServer, socket: QuizSocket): void {
       ack?.({ ok: true });
     },
   );
+
+  socket.on('drawing:submit', ({ pin, image }: { pin: string; image: string }) => {
+    const room = rooms.get(pin);
+    if (!room) return;
+    void room.submitDrawing(socket.id, image);
+  });
 }

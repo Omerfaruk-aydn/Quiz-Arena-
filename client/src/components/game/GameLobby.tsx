@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, LogOut, Users, Play } from 'lucide-react';
-import type { ParticipantDTO } from '../../types';
+import type { ParticipantDTO, GameMode } from '../../types';
+import { GAME_MODE_LABELS, GAME_MODE_ICONS } from '../../types';
 
 export interface ChatMessage {
   nickname: string;
@@ -18,6 +19,7 @@ interface GameLobbyProps {
   onStart?: () => void;
   onLeave: () => void;
   quizTitle?: string;
+  gameMode?: GameMode | string;
 }
 
 export function GameLobby({
@@ -29,6 +31,7 @@ export function GameLobby({
   onStart,
   onLeave,
   quizTitle,
+  gameMode = 'classic',
 }: GameLobbyProps) {
   const [msg, setMsg] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -57,7 +60,11 @@ export function GameLobby({
             {pin}
           </motion.p>
           {quizTitle && <p className="text-lg font-semibold">{quizTitle}</p>}
-          <p className="mt-1 inline-flex items-center gap-1.5 text-text-muted">
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
+            <span>{GAME_MODE_ICONS[gameMode as GameMode] ?? '🎯'}</span>
+            <span>{GAME_MODE_LABELS[gameMode as GameMode] ?? 'Klasik Quiz'}</span>
+          </div>
+          <p className="mt-2 inline-flex items-center gap-1.5 text-text-muted">
             <Users size={16} /> {participants.length} oyuncu bekliyor
           </p>
         </div>

@@ -67,6 +67,8 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
       creatorId: req.user!._id,
       category: input.category ?? 'Genel',
       difficulty: input.difficulty ?? 'medium',
+      gameMode: input.gameMode ?? 'classic',
+      modeSettings: JSON.parse(JSON.stringify(input.modeSettings ?? {})),
       tags: input.tags ?? [],
       isPublic: input.isPublic ?? false,
       settingsDefaultTimeLimit: input.settings?.defaultTimeLimit ?? 30,
@@ -126,6 +128,9 @@ export const updateQuiz = asyncHandler(async (req: Request, res: Response) => {
   if (body.description !== undefined) updateData.description = body.description;
   if (body.category !== undefined) updateData.category = body.category;
   if (body.difficulty !== undefined) updateData.difficulty = body.difficulty;
+  if (body.gameMode !== undefined) updateData.gameMode = body.gameMode;
+  if (body.modeSettings !== undefined)
+    updateData.modeSettings = JSON.parse(JSON.stringify(body.modeSettings));
   if (body.tags !== undefined) updateData.tags = body.tags;
   if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
   if (body.settings) {
@@ -169,6 +174,8 @@ export const duplicateQuiz = asyncHandler(async (req: Request, res: Response) =>
       creatorId: req.user!._id,
       category: original.category,
       difficulty: original.difficulty,
+      gameMode: original.gameMode,
+      modeSettings: JSON.parse(JSON.stringify(original.modeSettings ?? {})),
       tags: original.tags,
       isPublic: false,
       coverImageUrl: '',

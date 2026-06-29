@@ -6,6 +6,7 @@ export type {
   AnswerOption,
   QuizSettings,
   QuestionType,
+  GameMode,
   Difficulty,
   AnswerColor,
 } from '@quizarena/shared';
@@ -34,4 +35,7 @@ export {
   TIME_LIMITS,
   DEFAULT_TIME_LIMIT,
   GAME_PIN_LENGTH,
+  GAME_MODES,
+  GAME_MODE_LABELS,
+  GAME_MODE_ICONS,
 } from '@quizarena/shared';

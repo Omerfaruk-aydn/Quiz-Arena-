@@ -39,6 +39,8 @@ export async function createGameSession(input: CreateSessionInput) {
       quizId: input.quizId,
       hostId: input.hostId,
       status: 'lobby',
+      gameMode: quiz.gameMode,
+      modeSettings: quiz.modeSettings ?? {},
       currentQuestionIndex: 0,
       settingsTimeLimit: input.settings?.timeLimit ?? quiz.settingsDefaultTimeLimit,
       settingsShowAnswerAfterEach:

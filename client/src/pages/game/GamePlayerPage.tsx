@@ -6,6 +6,8 @@ import { GameLobby } from '../../components/game/GameLobby';
 import { GameQuestion } from '../../components/game/GameQuestion';
 import { GameLeaderboard } from '../../components/game/GameLeaderboard';
 import { GameResults } from '../../components/game/GameResults';
+import { DrawingCanvas } from '../../components/game/DrawingCanvas';
+import { DrawingResults } from '../../components/game/DrawingResults';
 import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES, STORAGE_KEYS } from '../../lib/constants';
@@ -14,7 +16,7 @@ import { useSound } from '../../hooks/useSound';
 export function GamePlayerPage() {
   const { pin } = useParams<{ pin: string }>();
   const navigate = useNavigate();
-  const { store, submitAnswer, sendChat, leaveLobby, useJoker, jokers } = useGame(
+  const { store, submitAnswer, submitDrawing, sendChat, leaveLobby, useJoker, jokers } = useGame(
     pin ?? null,
     'player',
   );
@@ -78,6 +80,7 @@ export function GamePlayerPage() {
                 leaveLobby();
                 navigate(ROUTES.gameJoin);
               }}
+              gameMode={store.gameMode}
             />
           </motion.div>
         )}
@@ -88,13 +91,25 @@ export function GamePlayerPage() {
           </motion.div>
         )}
 
-        {status === 'active' && store.currentQuestion && (
+        {status === 'active' && store.currentQuestion && store.gameMode === 'drawing_battle' && (
+          <motion.div key="active-drawing" className="flex flex-1 flex-col">
+            <DrawingCanvas
+              targetWord={store.currentQuestion.text}
+              timeLimit={store.timeLimit}
+              remaining={store.remainingTime}
+              disabled={store.hasAnswered}
+              onSubmit={submitDrawing}
+            />
+          </motion.div>
+        )}
+        {status === 'active' && store.currentQuestion && store.gameMode !== 'drawing_battle' && (
           <motion.div key="active" className="flex flex-1 flex-col">
             <div className="p-4">
               <JokerBar jokers={jokers} onUseJoker={useJoker} disabled={store.hasAnswered} />
             </div>
             <GameQuestion
               question={store.currentQuestion}
+              gameMode={store.gameMode}
               index={store.questionIndex}
               total={store.totalQuestions}
               remaining={store.remainingTime}
@@ -105,6 +120,7 @@ export function GamePlayerPage() {
               showResult={false}
               explanation=""
               answeredCount={0}
+              answerStats={store.answerStats}
               myResult={null}
               onPick={handlePick}
               fiftyFiftyRemoved={store.fiftyFiftyRemoved}
@@ -112,25 +128,42 @@ export function GamePlayerPage() {
           </motion.div>
         )}
 
-        {status === 'question_results' && store.currentQuestion && (
-          <motion.div key="qresults" className="flex flex-1 flex-col">
-            <GameQuestion
-              question={store.currentQuestion}
-              index={store.questionIndex}
-              total={store.totalQuestions}
-              remaining={0}
-              timeLimit={store.timeLimit}
-              selectedAnswer={store.selectedAnswer}
-              correctAnswer={store.correctAnswer}
-              hasAnswered={true}
-              showResult={true}
-              explanation={store.explanation}
-              answeredCount={0}
-              myResult={store.myResult}
-              onPick={() => undefined}
-            />
-          </motion.div>
-        )}
+        {status === 'question_results' &&
+          store.currentQuestion &&
+          store.gameMode === 'drawing_battle' && (
+            <motion.div key="qresults-drawing" className="flex flex-1 flex-col">
+              {store.drawingTarget && store.drawingResults.length > 0 ? (
+                <DrawingResults target={store.drawingTarget} results={store.drawingResults} />
+              ) : (
+                <p className="flex flex-1 items-center justify-center text-text-muted">
+                  Çizimler analiz ediliyor…
+                </p>
+              )}
+            </motion.div>
+          )}
+        {status === 'question_results' &&
+          store.currentQuestion &&
+          store.gameMode !== 'drawing_battle' && (
+            <motion.div key="qresults" className="flex flex-1 flex-col">
+              <GameQuestion
+                question={store.currentQuestion}
+                gameMode={store.gameMode}
+                index={store.questionIndex}
+                total={store.totalQuestions}
+                remaining={0}
+                timeLimit={store.timeLimit}
+                selectedAnswer={store.selectedAnswer}
+                correctAnswer={store.correctAnswer}
+                hasAnswered={true}
+                showResult={true}
+                explanation={store.explanation}
+                answeredCount={0}
+                answerStats={store.answerStats}
+                myResult={store.myResult}
+                onPick={() => undefined}
+              />
+            </motion.div>
+          )}
 
         {status === 'leaderboard' && (
           <motion.div key="leaderboard" className="flex flex-1 flex-col">

@@ -12,6 +12,7 @@ export interface GenerateInput {
   difficulty?: 'easy' | 'medium' | 'hard';
   questionCount?: number;
   includeImages?: boolean;
+  gameMode?: string;
 }
 
 export const aiService = {
@@ -22,6 +23,7 @@ export const aiService = {
         difficulty: input.difficulty ?? 'medium',
         questionCount: input.questionCount ?? 5,
         includeImages: input.includeImages ?? false,
+        gameMode: input.gameMode ?? 'classic',
       },
       { timeout: 180000 },
     );

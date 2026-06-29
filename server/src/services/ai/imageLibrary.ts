@@ -853,3 +853,54 @@ export const MAP_IMAGES: Record<string, string> = {
   canada:
     'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Canada_%28orthographic_projection%29.svg/400px-Canada_%28orthographic_projection%29.svg.png',
 };
+
+// Film / sinema görselleri (Wikimedia'de muhtemel dosya isimleri)
+// normalizeWikimediaUrl() tarafından Special:FilePath formatına dönüştürülür.
+export const FILM_IMAGES: Record<string, string> = {
+  'the godfather': 'https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg',
+  godfather: 'https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg',
+  baba: 'https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg',
+  'star wars':
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/400px-Star_Wars_Logo.svg.png',
+  'yıldız savaşları':
+    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Star_Wars_Logo.svg/400px-Star_Wars_Logo.svg.png',
+  titanic: 'https://upload.wikimedia.org/wikipedia/en/1/18/Titanic_%281997_film%29_poster.png',
+  'the matrix': 'https://upload.wikimedia.org/wikipedia/en/c/c1/The_Matrix_Poster.jpg',
+  matrix: 'https://upload.wikimedia.org/wikipedia/en/c/c1/The_Matrix_Poster.jpg',
+  inception:
+    'https://upload.wikimedia.org/wikipedia/en/2/2e/Inception_%282010%29_theatrical_poster.jpg',
+  avengers:
+    'https://upload.wikimedia.org/wikipedia/en/8/8a/The_Avengers_%282012_film%29_poster.jpg',
+  'lord of the rings': 'https://upload.wikimedia.org/wikipedia/en/8/87/Ringstrilogyposter.jpg',
+  'yüzüklerin efendisi': 'https://upload.wikimedia.org/wikipedia/en/8/87/Ringstrilogyposter.jpg',
+  'harry potter':
+    'https://upload.wikimedia.org/wikipedia/en/7/7a/Harry_Potter_and_the_Philosopher%27s_Stone_Banner.jpg',
+  'spider-man': 'https://upload.wikimedia.org/wikipedia/en/f/f8/Spider-Man_2002_film_poster.jpg',
+  spiderman: 'https://upload.wikimedia.org/wikipedia/en/f/f8/Spider-Man_2002_film_poster.jpg',
+  batman: 'https://upload.wikimedia.org/wikipedia/en/8/8d/Dark_Knight.jpg',
+  'the dark knight': 'https://upload.wikimedia.org/wikipedia/en/8/8d/Dark_Knight.jpg',
+  'forrest gump': 'https://upload.wikimedia.org/wikipedia/en/6/67/Forrest_Gump_poster.jpg',
+  'pulp fiction':
+    'https://upload.wikimedia.org/wikipedia/en/3/3b/Pulp_Fiction_%281994%29_poster.jpg',
+  'the shawshank redemption':
+    'https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg',
+  'esaretin bedeli':
+    'https://upload.wikimedia.org/wikipedia/en/8/81/ShawshankRedemptionMoviePoster.jpg',
+  'jurassic park': 'https://upload.wikimedia.org/wikipedia/en/e/e7/Jurassic_Park_poster.jpg',
+  frozen: 'https://upload.wikimedia.org/wikipedia/en/0/05/Frozen_%282013_film%29_poster.jpg',
+  'karlar ülkesi':
+    'https://upload.wikimedia.org/wikipedia/en/0/05/Frozen_%282013_film%29_poster.jpg',
+  'the lion king': 'https://upload.wikimedia.org/wikipedia/en/3/3d/The_Lion_King_poster.jpg',
+  'aslan kral': 'https://upload.wikimedia.org/wikipedia/en/3/3d/The_Lion_King_poster.jpg',
+  'toy story': 'https://upload.wikimedia.org/wikipedia/en/1/13/Toy_Story.jpg',
+  'finding nemo': 'https://upload.wikimedia.org/wikipedia/en/2/29/Finding_Nemo.jpg',
+  'kayip balik nemo': 'https://upload.wikimedia.org/wikipedia/en/2/29/Finding_Nemo.jpg',
+  shrek: 'https://upload.wikimedia.org/wikipedia/en/3/39/Shrek.jpg',
+  gladiator: 'https://upload.wikimedia.org/wikipedia/en/8/8d/Gladiator_ver1.jpg',
+  braveheart: 'https://upload.wikimedia.org/wikipedia/en/6/67/Braveheart_imp.jpg',
+  'saving private ryan':
+    'https://upload.wikimedia.org/wikipedia/en/a/ac/Saving_Private_Ryan_poster.jpg',
+  interstellar: 'https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg',
+  avatar: 'https://upload.wikimedia.org/wikipedia/en/d/d6/Avatar_%282009_film%29_poster.jpg',
+  joker: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Joker_%282019_film%29_poster.jpg',
+};

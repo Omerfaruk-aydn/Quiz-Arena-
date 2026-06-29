@@ -1,5 +1,24 @@
 export type QuestionType = 'multiple_choice' | 'true_false' | 'image_choice';
 
+export type GameMode =
+  | 'classic'
+  | 'logo_guess'
+  | 'flag_guess'
+  | 'film_guess'
+  | 'emoji_riddle'
+  | 'true_false_storm'
+  | 'math_sprint'
+  | 'millionaire'
+  | 'sort_events'
+  | 'matching'
+  | 'memory_match'
+  | 'simon_says'
+  | 'pictionary'
+  | 'fibbage'
+  | 'survey'
+  | 'meme_war'
+  | 'mastermind';
+
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export type AnswerColor = 'red' | 'blue' | 'yellow' | 'green';
@@ -40,6 +59,8 @@ export interface Quiz {
   creator: string;
   category: string;
   difficulty: Difficulty;
+  gameMode: GameMode;
+  modeSettings: Record<string, unknown>;
   tags: string[];
   isPublic: boolean;
   questions: string[];

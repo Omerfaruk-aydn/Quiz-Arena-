@@ -7,18 +7,25 @@ import { Button } from '../ui/Button';
 import { Input, Field } from '../ui/Input';
 import toast from 'react-hot-toast';
 import { cn } from '../../lib/utils';
+import { GAME_MODE_LABELS, GAME_MODE_ICONS, type GameMode } from '../../types';
 
 interface AiQuizGeneratorProps {
+  gameMode?: GameMode;
   onAddQuestions: (questions: AiQuizQuestion[]) => void;
   onClose: () => void;
 }
 
 const COLORS = ['red', 'blue', 'yellow', 'green'] as const;
 
-export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProps) {
+export function AiQuizGenerator({
+  gameMode = 'classic',
+  onAddQuestions,
+  onClose,
+}: AiQuizGeneratorProps) {
+  const visualModes = new Set<GameMode>(['logo_guess', 'flag_guess', 'film_guess']);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
-  const [questionCount, setQuestionCount] = useState('5');
-  const [includeImages, setIncludeImages] = useState(false);
+  const [questionCount, setQuestionCount] = useState(gameMode === 'millionaire' ? '12' : '5');
+  const [includeImages, setIncludeImages] = useState(visualModes.has(gameMode));
   const [preview, setPreview] = useState<AiQuizQuestion[] | null>(null);
 
   const generateMutation = useMutation({
@@ -27,6 +34,7 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
         difficulty,
         questionCount: Math.min(20, Math.max(3, Number(questionCount) || 5)),
         includeImages,
+        gameMode,
       }),
     onSuccess: (data) => {
       setPreview(data.questions);
@@ -63,7 +71,9 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
             </div>
             <div>
               <h2 className="text-lg font-bold">AI ile Soru Üret</h2>
-              <p className="text-xs text-text-muted">Karışık konularda rastgele sorular</p>
+              <p className="text-xs text-text-muted">
+                {GAME_MODE_ICONS[gameMode]} {GAME_MODE_LABELS[gameMode]} modu için sorular
+              </p>
             </div>
           </div>
           <Button size="icon" variant="ghost" onClick={onClose}>
@@ -75,8 +85,27 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
         <div className="mb-6 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
           <Shuffle size={16} className="shrink-0 text-primary" />
           <p className="text-xs text-text-muted">
-            Sorular genel kültür, bilim, tarih, coğrafya ve daha birçok konudan rastgele
-            oluşturulacaktır.
+            {gameMode === 'classic' &&
+              'Sorular genel kültür, bilim, tarih, coğrafya ve daha birçok konudan rastgele oluşturulacaktır.'}
+            {gameMode === 'logo_guess' && 'Popüler marka ve şirket logolarından sorular üretilir.'}
+            {gameMode === 'flag_guess' && 'Ülke bayrakları ve başkentlerinden sorular üretilir.'}
+            {gameMode === 'film_guess' && 'Ünlü film sahneleri ve posterlerinden sorular üretilir.'}
+            {gameMode === 'emoji_riddle' &&
+              'Emoji dizilerinden kelime/tahmin bulmacaları üretilir.'}
+            {gameMode === 'true_false_storm' && 'Hızlı doğru/yanlış ifadeleri üretilir.'}
+            {gameMode === 'math_sprint' && 'Zihinden çözülebilecek matematik soruları üretilir.'}
+            {gameMode === 'millionaire' &&
+              'Zorluk artan "Kim Milyoner Olmak İster?" soruları üretilir.'}
+            {gameMode === 'sort_events' && 'Tarihsel olayların sıralanması soruları üretilir.'}
+            {gameMode === 'matching' && 'Eşleştirme tabanlı bilgi soruları üretilir.'}
+            {gameMode === 'memory_match' && 'Hafıza kartı eşleştirme soruları üretilir.'}
+            {gameMode === 'simon_says' && 'Renk dizisi tamamlama soruları üretilir.'}
+            {gameMode === 'pictionary' && 'Çizim/sembol temsil soruları üretilir.'}
+            {gameMode === 'fibbage' &&
+              'İnandırıcı yalanlar içeren az bilinen gerçek soruları üretilir.'}
+            {gameMode === 'survey' && 'Tartışmalı anket/opinion soruları üretilir.'}
+            {gameMode === 'meme_war' && 'Komik altyazı seçenekleri üretilir.'}
+            {gameMode === 'mastermind' && 'Renk kodu tamamlama soruları üretilir.'}
           </p>
         </div>
 
@@ -112,10 +141,16 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
             />
           </Field>
 
-          <label className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3">
+          <label
+            className={cn(
+              'flex items-center gap-3 rounded-xl border border-border bg-surface-2 p-3',
+              visualModes.has(gameMode) && 'opacity-70',
+            )}
+          >
             <input
               type="checkbox"
               checked={includeImages}
+              disabled={visualModes.has(gameMode)}
               onChange={(e) => setIncludeImages(e.target.checked)}
               className="h-5 w-5 accent-primary"
             />
@@ -124,7 +159,9 @@ export function AiQuizGenerator({ onAddQuestions, onClose }: AiQuizGeneratorProp
                 <ImageIcon size={14} /> Görselli Sorular
               </p>
               <p className="text-xs text-text-muted">
-                Bayrak, ünlü yapı, kişi, hayvan, yemek, sanat eseri ve daha fazlası
+                {visualModes.has(gameMode)
+                  ? 'Bu mod için görsel zorunludur.'
+                  : 'Bayrak, ünlü yapı, kişi, hayvan, yemek, sanat eseri ve daha fazlası'}
               </p>
             </div>
           </label>

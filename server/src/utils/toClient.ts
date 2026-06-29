@@ -27,6 +27,8 @@ export function toClientQuiz(quiz: AnyObj): AnyObj {
   return {
     ...rest,
     _id: id,
+    gameMode: quiz.gameMode ?? 'classic',
+    modeSettings: (quiz.modeSettings as Record<string, unknown>) ?? {},
     coverImage: quiz.coverImageUrl
       ? { url: quiz.coverImageUrl, publicId: coverImagePublicId }
       : null,

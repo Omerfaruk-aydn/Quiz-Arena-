@@ -51,6 +51,7 @@ export interface FinalLeaderboardEntry {
 
 export interface ReconnectStateDTO {
   status: GameStatus;
+  gameMode: string;
   currentQuestionIndex: number;
   totalQuestions: number;
   remainingTime: number;

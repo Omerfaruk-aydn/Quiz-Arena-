@@ -15,11 +15,21 @@ interface ChatMessage {
   timestamp: string;
 }
 
+interface DrawingResultItem {
+  participantId: string;
+  nickname: string;
+  emoji: string;
+  score: number;
+  feedback: string;
+  image: string | null;
+}
+
 interface GameState {
   pin: string | null;
   role: 'host' | 'player' | null;
   participantId: string | null;
   status: GameStatus;
+  gameMode: string;
   participants: ParticipantDTO[];
   currentQuestion: QuestionDTO | null;
   questionIndex: number;
@@ -45,11 +55,14 @@ interface GameState {
   error: { code: string; message: string } | null;
   countdown: number;
   fiftyFiftyRemoved: number[];
+  drawingTarget: string | null;
+  drawingResults: DrawingResultItem[];
 
   setPin: (pin: string | null) => void;
   setRole: (role: 'host' | 'player' | null) => void;
   setParticipantId: (id: string | null) => void;
   setStatus: (status: GameStatus) => void;
+  setGameMode: (gameMode: string) => void;
   setParticipants: (p: ParticipantDTO[]) => void;
   addParticipant: (p: ParticipantDTO) => void;
   removeParticipant: (participantId: string) => void;
@@ -67,6 +80,8 @@ interface GameState {
   setError: (e: GameState['error']) => void;
   setCountdown: (c: number) => void;
   setFiftyFiftyRemoved: (indices: number[]) => void;
+  setDrawingTarget: (target: string) => void;
+  setDrawingResults: (results: DrawingResultItem[]) => void;
   syncState: (state: ReconnectStateDTO) => void;
   reset: () => void;
 }
@@ -76,6 +91,7 @@ const initial = {
   role: null as 'host' | 'player' | null,
   participantId: null as string | null,
   status: 'lobby' as GameStatus,
+  gameMode: 'classic',
   participants: [] as ParticipantDTO[],
   currentQuestion: null as QuestionDTO | null,
   questionIndex: 0,
@@ -96,6 +112,8 @@ const initial = {
   error: null as GameState['error'],
   countdown: 0,
   fiftyFiftyRemoved: [] as number[],
+  drawingTarget: null as string | null,
+  drawingResults: [] as DrawingResultItem[],
 };
 
 export const useGameStore = create<GameState>((set) => ({
@@ -104,6 +122,7 @@ export const useGameStore = create<GameState>((set) => ({
   setRole: (role) => set({ role }),
   setParticipantId: (participantId) => set({ participantId }),
   setStatus: (status) => set({ status }),
+  setGameMode: (gameMode: string) => set({ gameMode }),
   setParticipants: (participants) => set({ participants }),
   addParticipant: (p) =>
     set((s) => ({
@@ -145,9 +164,12 @@ export const useGameStore = create<GameState>((set) => ({
   setError: (error) => set({ error }),
   setCountdown: (countdown) => set({ countdown }),
   setFiftyFiftyRemoved: (fiftyFiftyRemoved) => set({ fiftyFiftyRemoved }),
+  setDrawingTarget: (drawingTarget) => set({ drawingTarget }),
+  setDrawingResults: (drawingResults) => set({ drawingResults }),
   syncState: (state) =>
     set({
       status: state.status,
+      gameMode: state.gameMode || 'classic',
       questionIndex: state.currentQuestionIndex,
       totalQuestions: state.totalQuestions,
       remainingTime: state.remainingTime,

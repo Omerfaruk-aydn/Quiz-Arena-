@@ -60,6 +60,8 @@ export class GameRoom {
   private currentIndex = 0;
   private timer: QuestionTimer | null = null;
   private difficulty: string = 'medium';
+  private gameMode: string = 'classic';
+  private modeSettings: Record<string, unknown> = {};
   private readonly io: QuizServer;
   private isEndingQuestion = false;
   private isFinished = false;
@@ -67,6 +69,31 @@ export class GameRoom {
   private questionStartedAt = 0;
   private minQuestionTimeout: NodeJS.Timeout | null = null;
   private readonly MIN_QUESTION_MS = 3000;
+  private drawings = new Map<string, string>();
+  private drawingTargets: string[] = [];
+
+  private readonly DRAWING_TARGETS = [
+    'elma',
+    'muz',
+    'kedi',
+    'köpek',
+    'ev',
+    'ağaç',
+    'araba',
+    'uçak',
+    'güneş',
+    'ay',
+    'yıldız',
+    'kalp',
+    'telefon',
+    'bisiklet',
+    'top',
+    'kitap',
+    'kalem',
+    'saat',
+    'ayakkabı',
+    'şapka',
+  ];
 
   constructor(
     io: QuizServer,
@@ -82,10 +109,12 @@ export class GameRoom {
   async loadQuiz(quizId: string): Promise<void> {
     const quiz = await prisma.quiz.findUnique({
       where: { id: quizId },
-      select: { difficulty: true },
+      select: { difficulty: true, gameMode: true, modeSettings: true },
     });
     if (quiz) {
       this.difficulty = quiz.difficulty;
+      this.gameMode = quiz.gameMode;
+      this.modeSettings = (quiz.modeSettings as Record<string, unknown>) ?? {};
     }
     const questions = await prisma.question.findMany({
       where: { quizId },
@@ -232,13 +261,21 @@ export class GameRoom {
         where: { id: this.sessionId },
         data: { status: 'active', startedAt: new Date() },
       });
-      this.io.to(`game:${this.pin}`).emit('game:started', { pin: this.pin, status: 'active' });
+      this.io.to(`game:${this.pin}`).emit('game:started', {
+        pin: this.pin,
+        status: 'active',
+        gameMode: this.gameMode,
+      });
       this.startNextQuestion();
     }, 4000);
   }
 
   startNextQuestion(): void {
     if (this.isFinished) return;
+    if (this.gameMode === 'drawing_battle') {
+      void this.startDrawingRound();
+      return;
+    }
     if (this.currentIndex >= this.questions.length) {
       logger.info(`[GameRoom ${this.pin}] No more questions, finishing game`);
       void this.finishGame();
@@ -262,17 +299,18 @@ export class GameRoom {
     this.state.force('active');
 
     const answersForClient = q.answers.map((a) => ({ text: a.text, color: a.color }));
+    const timeLimit = q.timeLimit ?? getTimeLimitForDifficulty(this.difficulty);
     const dto: QuestionDTO = {
       _id: q.id,
       text: q.text,
       image: q.imageUrl || null,
       answers: answersForClient,
-      timeLimit: getTimeLimitForDifficulty(this.difficulty),
+      timeLimit,
       explanation: q.explanation || '',
     };
 
     this.timer?.stop();
-    this.timer = new QuestionTimer(getTimeLimitForDifficulty(this.difficulty));
+    this.timer = new QuestionTimer(timeLimit);
     this.timer.on('tick', (remaining) => {
       this.io.to(`game:${this.pin}`).emit('game:timer_tick', { remaining });
     });
@@ -290,6 +328,211 @@ export class GameRoom {
     });
   }
 
+  private async startDrawingRound(): Promise<void> {
+    const roundCount = Number(this.modeSettings.roundCount) || 5;
+    if (this.currentIndex >= roundCount) {
+      void this.finishGame();
+      return;
+    }
+    if (this.drawingTargets.length === 0) {
+      this.drawingTargets = this.shuffleArray([...this.DRAWING_TARGETS]).slice(0, roundCount);
+    }
+    const target = this.drawingTargets[this.currentIndex] ?? 'elma';
+    this.drawings.clear();
+    this.isEndingQuestion = false;
+    if (this.minQuestionTimeout) {
+      clearTimeout(this.minQuestionTimeout);
+      this.minQuestionTimeout = null;
+    }
+    this.questionStartedAt = Date.now();
+    for (const p of this.players.values()) {
+      p.answered = false;
+      p.selectedAnswer = null;
+      p.responseTime = 0;
+    }
+    this.state.force('active');
+
+    const drawTime = Number(this.modeSettings.drawTime) || 60;
+    const dto: QuestionDTO = {
+      _id: `draw-${this.currentIndex}`,
+      text: target,
+      image: null,
+      answers: [],
+      timeLimit: drawTime,
+      explanation: '',
+    };
+
+    this.timer?.stop();
+    this.timer = new QuestionTimer(drawTime);
+    this.timer.on('tick', (remaining) => {
+      this.io.to(`game:${this.pin}`).emit('game:timer_tick', { remaining });
+    });
+    this.timer.on('end', () => {
+      void this.endDrawingRound();
+    });
+    this.timer.start();
+    void this.saveStateToRedis();
+
+    this.io.to(`game:${this.pin}`).emit('game:question_start', {
+      question: dto,
+      index: this.currentIndex,
+      total: roundCount,
+      timeLimit: drawTime,
+    });
+    this.io.to(`game:${this.pin}:host`).emit('host:drawing_target', { target });
+  }
+
+  async submitDrawing(socketId: string, imageBase64: string): Promise<void> {
+    const player = this.players.get(socketId);
+    if (!player || player.answered) return;
+    if (this.state.get() !== 'active') return;
+    if (this.gameMode !== 'drawing_battle') return;
+    if (!imageBase64.startsWith('data:image/')) return;
+
+    this.drawings.set(player.participantId, imageBase64);
+    player.answered = true;
+
+    const answeredCount = this.getPlayersArray().filter((p) => p.answered).length;
+    this.io.to(`game:${this.pin}`).emit('game:answer_received', { count: answeredCount });
+
+    if (answeredCount === this.players.size) {
+      const elapsed = Date.now() - this.questionStartedAt;
+      if (elapsed < this.MIN_QUESTION_MS) {
+        if (!this.minQuestionTimeout) {
+          const delay = this.MIN_QUESTION_MS - elapsed;
+          this.minQuestionTimeout = setTimeout(() => {
+            this.minQuestionTimeout = null;
+            void this.endDrawingRound();
+          }, delay);
+        }
+      } else {
+        await this.endDrawingRound();
+      }
+    }
+  }
+
+  private async endDrawingRound(): Promise<void> {
+    if (this.isEndingQuestion) return;
+    const elapsed = Date.now() - this.questionStartedAt;
+    if (elapsed < this.MIN_QUESTION_MS) {
+      if (!this.minQuestionTimeout) {
+        const delay = this.MIN_QUESTION_MS - elapsed;
+        this.minQuestionTimeout = setTimeout(() => {
+          this.minQuestionTimeout = null;
+          void this.endDrawingRound();
+        }, delay);
+      }
+      return;
+    }
+    this.isEndingQuestion = true;
+    if (this.minQuestionTimeout) {
+      clearTimeout(this.minQuestionTimeout);
+      this.minQuestionTimeout = null;
+    }
+    if (this.timer) {
+      this.timer.stop();
+      this.timer = null;
+    }
+    this.state.force('question_results');
+
+    const target = this.drawingTargets[this.currentIndex] ?? 'elma';
+    const results: Array<{ participantId: string; score: number; feedback: string }> = [];
+
+    // AI analyze drawings
+    for (const [participantId, imageBase64] of this.drawings.entries()) {
+      try {
+        const { analyzeDrawing } = await import('../../services/ai/openrouter.js');
+        const analysis = await analyzeDrawing(target, imageBase64);
+        results.push({ participantId, ...analysis });
+      } catch (err) {
+        logger.warn('Çizim analizi hatası', { err });
+        results.push({ participantId, score: 0, feedback: 'Analiz yapılamadı' });
+      }
+    }
+
+    // Give partial participation points to players who didn't submit
+    for (const p of this.players.values()) {
+      if (!this.drawings.has(p.participantId)) {
+        results.push({ participantId: p.participantId, score: 0, feedback: 'Çizim gönderilmedi' });
+      }
+    }
+
+    // Update scores
+    for (const r of results) {
+      const player = [...this.players.values()].find((p) => p.participantId === r.participantId);
+      if (player) {
+        const points = Math.round((r.score / 100) * 1000);
+        player.lastPointsEarned = points;
+        player.totalScore += points;
+        player.correctCount += r.score >= 50 ? 1 : 0;
+      }
+    }
+
+    const distribution = [0, 0, 0, 0];
+    const stats: AnswerStats = {
+      distribution,
+      totalAnswered: this.drawings.size,
+      totalParticipants: this.players.size,
+    };
+
+    const explanation =
+      `Hedef: ${target}\n` +
+      results
+        .map((r) => {
+          const p = [...this.players.values()].find((x) => x.participantId === r.participantId);
+          return `${p?.nickname ?? '?'}: %${r.score} — ${r.feedback}`;
+        })
+        .join('\n');
+
+    this.io.to(`game:${this.pin}`).emit('game:question_end', {
+      correctAnswer: -1,
+      explanation,
+      answerStats: stats,
+    });
+
+    // Emit drawing results with images to everyone
+    this.io.to(`game:${this.pin}`).emit('drawing:results', {
+      target,
+      results: results.map((r) => {
+        const p = [...this.players.values()].find((x) => x.participantId === r.participantId);
+        return {
+          participantId: r.participantId,
+          nickname: p?.nickname ?? '?',
+          emoji: p?.emoji ?? '🎨',
+          score: r.score,
+          feedback: r.feedback,
+          image: this.drawings.get(r.participantId) ?? null,
+        };
+      }),
+    });
+
+    const leaderboard = this.buildLeaderboard(-1);
+    this.io.to(`game:${this.pin}`).emit('game:leaderboard', { leaderboard });
+    this.state.force('leaderboard');
+
+    const roundCount = Number(this.modeSettings.roundCount) || 5;
+    const isLast = this.currentIndex + 1 >= roundCount;
+    this.advanceTimeout = setTimeout(() => {
+      this.advanceTimeout = null;
+      this.isEndingQuestion = false;
+      if (this.isFinished) return;
+      if (isLast) {
+        void this.finishGame();
+      } else {
+        this.nextQuestion();
+      }
+    }, 6000);
+  }
+
+  private shuffleArray<T>(arr: T[]): T[] {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
   async submitAnswer(socketId: string, answerIndex: number, responseTime: number): Promise<void> {
     const player = this.players.get(socketId);
     if (!player || player.answered) return;
@@ -297,17 +540,20 @@ export class GameRoom {
     const q = this.questions[this.currentIndex];
     if (!q) return;
     const correctIdx = q.answers.findIndex((a) => a.isCorrect);
-    const isCorrect = correctIdx === answerIndex;
+    const isCorrect = this.gameMode === 'survey' ? true : correctIdx === answerIndex;
     player.answered = true;
     player.selectedAnswer = answerIndex;
     player.responseTime = responseTime;
 
-    const points = calculatePoints({
-      isCorrect,
-      responseTime,
-      timeLimit: getTimeLimitForDifficulty(this.difficulty),
-      streak: isCorrect ? player.streak : 0,
-    });
+    const points =
+      this.gameMode === 'survey'
+        ? 500
+        : calculatePoints({
+            isCorrect,
+            responseTime,
+            timeLimit: getTimeLimitForDifficulty(this.difficulty),
+            streak: isCorrect ? player.streak : 0,
+          });
     player.lastPointsEarned = points;
     if (isCorrect) {
       player.totalScore += points;
@@ -648,6 +894,7 @@ export class GameRoom {
 
     const reconnectState: ReconnectStateDTO = {
       status: this.state.get(),
+      gameMode: this.gameMode,
       currentQuestionIndex: this.currentIndex,
       totalQuestions: this.questions.length,
       remainingTime,
@@ -661,7 +908,7 @@ export class GameRoom {
     if (this.state.is('active') && this.timer) {
       const q = this.questions[this.currentIndex];
       if (q) {
-        const fullTimeLimit = getTimeLimitForDifficulty(this.difficulty);
+        const fullTimeLimit = q.timeLimit ?? getTimeLimitForDifficulty(this.difficulty);
         this.io.to(socket.id).emit('game:question_start', {
           question: {
             _id: q.id,

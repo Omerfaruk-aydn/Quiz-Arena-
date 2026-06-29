@@ -29,7 +29,8 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
-import type { Quiz, Question, AnswerOption as AnswerOptionType } from '../../types';
+import type { Quiz, Question, AnswerOption as AnswerOptionType, GameMode } from '../../types';
+import { GAME_MODES, GAME_MODE_LABELS, GAME_MODE_ICONS } from '../../types';
 import type { AiQuizQuestion } from '../../services/aiService';
 import { Button } from '../ui/Button';
 import { Input, Textarea, Field } from '../ui/Input';
@@ -37,6 +38,7 @@ import { Badge } from '../ui/Badge';
 import { QuestionEditor } from './QuestionEditor';
 import { QuizPreview } from './QuizPreview';
 import { AiQuizGenerator } from './AiQuizGenerator';
+import { ModeSettingsEditor } from '../game/ModeSettingsEditor';
 import { quizSchema } from '../../lib/validations';
 import { zodErrors } from '../../lib/validations';
 import { CATEGORIES } from '../../lib/constants';
@@ -59,6 +61,8 @@ type QuizFormInput = {
   description: string;
   category: string;
   difficulty: 'easy' | 'medium' | 'hard';
+  gameMode: string;
+  modeSettings: Record<string, unknown>;
   tags: string[];
   isPublic: boolean;
   settings: Quiz['settings'];
@@ -147,6 +151,8 @@ export function QuizForm({
     description: initial?.description ?? '',
     category: initial?.category ?? 'Genel Kültür',
     difficulty: initial?.difficulty ?? 'medium',
+    gameMode: initial?.gameMode ?? 'classic',
+    modeSettings: (initial?.modeSettings as Record<string, unknown>) ?? {},
     tags: initial?.tags ?? [],
     isPublic: initial?.isPublic ?? false,
     settings: initial?.settings ?? {
@@ -184,6 +190,14 @@ export function QuizForm({
   const addQuestion = () => set('questions', [...values.questions, blankQuestion()]);
 
   const addAiQuestions = (aiQuestions: AiQuizQuestion[]) => {
+    const modeTimeLimit =
+      values.gameMode === 'true_false_storm'
+        ? 10
+        : values.gameMode === 'math_sprint'
+          ? 20
+          : values.gameMode === 'millionaire'
+            ? 45
+            : 30;
     const newQuestions = aiQuestions.map((aq) => ({
       type: aq.type as Question['type'],
       text: aq.text,
@@ -193,8 +207,8 @@ export function QuizForm({
         isCorrect: a.isCorrect,
         color: (['red', 'blue', 'yellow', 'green'] as const)[i % 4] as AnswerOptionType['color'],
       })),
-      timeLimit: 30,
-      points: 1000,
+      timeLimit: modeTimeLimit,
+      points: values.gameMode === 'millionaire' ? 1000 : 1000,
       explanation: aq.explanation,
     }));
     set('questions', [...values.questions, ...newQuestions]);
@@ -431,6 +445,37 @@ export function QuizForm({
             </Field>
           </div>
 
+          <Field label="Oyun Modu">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {GAME_MODES.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => set('gameMode', m)}
+                  className={cn(
+                    'flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-all',
+                    values.gameMode === m
+                      ? 'border-primary bg-primary/15 text-white'
+                      : 'border-border bg-surface-2 text-text-muted hover:border-primary/50',
+                  )}
+                >
+                  <span className="text-xl">{GAME_MODE_ICONS[m]}</span>
+                  <span>{GAME_MODE_LABELS[m]}</span>
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          <AnimatePresence>
+            {values.gameMode !== 'classic' && (
+              <ModeSettingsEditor
+                gameMode={values.gameMode}
+                value={values.modeSettings}
+                onChange={(v) => set('modeSettings', v)}
+              />
+            )}
+          </AnimatePresence>
+
           <Field label="Etiketler" hint="En fazla 10 etiket">
             <div className="flex flex-wrap gap-2 rounded-xl border border-border bg-surface-2 p-2">
               {values.tags.map((t) => (
@@ -586,6 +631,7 @@ export function QuizForm({
       <AnimatePresence>
         {showAiGenerator && (
           <AiQuizGenerator
+            gameMode={values.gameMode as GameMode}
             onAddQuestions={addAiQuestions}
             onClose={() => setShowAiGenerator(false)}
           />

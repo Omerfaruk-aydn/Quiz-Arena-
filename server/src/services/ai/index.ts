@@ -17,6 +17,7 @@ function isValidImageType(value: unknown): boolean {
     'landmark',
     'person',
     'logo',
+    'film',
     'map',
     'artwork',
     'animal',
@@ -53,27 +54,46 @@ function parseAiResponse(raw: string): AiQuizQuestion[] {
   }
 
   return parsed.questions.map((q) => {
-    const answers = (q.answers || []).slice(0, 4).map((a) => ({
+    const isTrueFalse = q.type === 'true_false';
+    const maxAnswers = isTrueFalse ? 2 : 4;
+    const answers = (q.answers || []).slice(0, maxAnswers).map((a) => ({
       text: String(a.text ?? '').substring(0, MAX_ANSWER_LEN),
       isCorrect: !!a.isCorrect,
     }));
 
-    // Ensure exactly 4 answers, fill blanks if needed
-    while (answers.length < 4) {
-      answers.push({ text: 'Seçenek', isCorrect: false });
-    }
+    if (isTrueFalse) {
+      // True/false must have exactly Doğru and Yanlış
+      const hasTrue = answers.some((a) => /doğru/i.test(a.text));
+      const hasFalse = answers.some((a) => /yanlış/i.test(a.text));
+      if (!hasTrue) answers.push({ text: 'Doğru', isCorrect: !answers.some((a) => a.isCorrect) });
+      if (!hasFalse) answers.push({ text: 'Yanlış', isCorrect: !answers.some((a) => a.isCorrect) });
+      // Ensure exactly one correct
+      let found = false;
+      for (const a of answers) {
+        if (a.isCorrect) {
+          if (found) a.isCorrect = false;
+          found = true;
+        }
+      }
+      if (!found && answers.length > 0) answers[0].isCorrect = true;
+    } else {
+      // Ensure exactly 4 answers, fill blanks if needed
+      while (answers.length < 4) {
+        answers.push({ text: 'Seçenek', isCorrect: false });
+      }
 
-    // Ensure at least one correct answer
-    if (!answers.some((a) => a.isCorrect)) {
-      answers[0].isCorrect = true;
-    }
+      // Ensure at least one correct answer
+      if (!answers.some((a) => a.isCorrect)) {
+        answers[0].isCorrect = true;
+      }
 
-    // Ensure only one correct answer for clean UX
-    let correctFound = false;
-    for (const a of answers) {
-      if (a.isCorrect) {
-        if (correctFound) a.isCorrect = false;
-        correctFound = true;
+      // Ensure only one correct answer for clean UX
+      let correctFound = false;
+      for (const a of answers) {
+        if (a.isCorrect) {
+          if (correctFound) a.isCorrect = false;
+          correctFound = true;
+        }
       }
     }
 
@@ -84,7 +104,7 @@ function parseAiResponse(raw: string): AiQuizQuestion[] {
 
     return {
       text: String(q.text ?? 'Soru').substring(0, MAX_TEXT_LEN),
-      type: q.type === 'true_false' ? 'true_false' : 'multiple_choice',
+      type: isTrueFalse ? 'true_false' : 'multiple_choice',
       answers,
       explanation: String(q.explanation ?? '').substring(0, MAX_EXPLANATION_LEN),
       imageType,
@@ -124,7 +144,11 @@ function resolveImages(questions: AiQuizQuestion[]): AiQuizQuestion[] {
 }
 
 export async function generateQuiz(input: GenerateInput): Promise<GenerateResult> {
-  const prompt = buildPrompt(input);
+  const effectiveInput =
+    input.gameMode === 'millionaire'
+      ? { ...input, questionCount: Math.max(5, input.questionCount) }
+      : input;
+  const prompt = buildPrompt(effectiveInput);
   const raw = await callOpenRouter(prompt, 16384);
   const questions = parseAiResponse(raw);
   const withImages = input.includeImages ? resolveImages(questions) : questions;
