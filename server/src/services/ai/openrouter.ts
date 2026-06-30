@@ -4,12 +4,13 @@ import { ApiError } from '../../utils/ApiError.js';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 export const MODEL = 'xiaomi/mimo-v2.5';
-export const VISION_MODEL = 'google/gemini-2.0-flash-001';
+export const MAX_TOKENS = 32768;
+export const TIMEOUT_MS = 300_000;
 
 export async function callOpenRouter(
   prompt: string,
-  maxTokens = 16384,
-  timeoutMs = 240_000,
+  maxTokens = MAX_TOKENS,
+  timeoutMs = TIMEOUT_MS,
 ): Promise<string> {
   if (!config.openrouter.apiKey) {
     throw ApiError.internal('OpenRouter API anahtarı tanımlı değil');
@@ -72,7 +73,7 @@ export async function analyzeDrawing(
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 120_000);
+  const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
     const response = await fetch(OPENROUTER_URL, {
@@ -84,14 +85,14 @@ export async function analyzeDrawing(
         'X-Title': 'QuizArena',
       },
       body: JSON.stringify({
-        model: VISION_MODEL,
+        model: MODEL,
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Bu çizimin hedef kavramı "${targetWord}". Çizimi hedef kavramla karşılaştır. Sadece şu JSON formatında yanıt ver: {"score": 0-100 arası benzerlik puanı, "feedback": "1 cümlelik kısa yorum"}. Türkçe yaz.`,
+                text: `Bu çizimin hedef kavramı "${targetWord}". Çizimi hedef kavramla karşılaştır ve değerlendir. Sadece şu JSON formatında yanıt ver: {"score": 0-100 arası benzerlik puanı, "feedback": "1-2 cümlelik yapıcı yorum"}. Türkçe yaz.`,
               },
               {
                 type: 'image_url',
@@ -100,8 +101,8 @@ export async function analyzeDrawing(
             ],
           },
         ],
-        temperature: 0.3,
-        max_tokens: 256,
+        temperature: 0.7,
+        max_tokens: MAX_TOKENS,
       }),
       signal: controller.signal,
     });
