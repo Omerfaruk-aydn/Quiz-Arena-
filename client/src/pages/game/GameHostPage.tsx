@@ -99,7 +99,7 @@ export function GameHostPage() {
               }}
               quizTitle={quizTitle}
               gameMode={store.gameMode}
-gameMode=
+            />
           </motion.div>
         )}
 
