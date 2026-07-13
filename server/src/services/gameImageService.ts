@@ -106,7 +106,6 @@ export const imageDbService = {
     ]);
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   },
-};
 
   async incrementUsage(id: string) {
     await prisma.gameImage.update({
@@ -114,3 +113,4 @@ export const imageDbService = {
       data: { usageCount: { increment: 1 }, lastUsedAt: new Date() },
     });
   },
+};
