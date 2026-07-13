@@ -834,7 +834,6 @@ export const LOGO_IMAGES: Record<string, string> = {
   // Red Bull
   'red bull': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
   redbull: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
-};
   'coca cola':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
   cocacola:
