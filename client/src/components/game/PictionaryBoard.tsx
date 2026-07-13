@@ -41,14 +41,14 @@ export function PictionaryBoard({
             {SYMBOLS.slice(3, 6).join(' ')}
           </div>
 
-          {/* Question text as a "drawing description" */}
-          <p className="text-xl font-bold leading-relaxed text-white sm:text-2xl">
+          {/* Drawing display */}
+          <p className="text-4xl font-bold leading-relaxed text-white sm:text-6xl">
             {questionText}
           </p>
           <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-4 py-1.5">
             <span className="text-emerald-400">🎨</span>
             <span className="text-xs font-medium text-emerald-300">
-              Bu çizim/sembol neyi temsil ediyor?
+              Bu kavramı tahmin et
             </span>
           </div>
         </div>
