@@ -170,10 +170,16 @@ export function resolveImageUrl(
     case 'flag': {
       // Doğrudan eşleşme (normalize edilmiş sorgu)
       const direct = COUNTRY_FLAGS[q] || COUNTRY_FLAGS[cleaned];
-      if (direct) result = `https://flagcdn.com/w640/${direct}.png`;
-      else {
+      if (direct) {
+        // ISO kod mu yoksa tam URL mi kontrol et
+        const isUrl = direct.startsWith('http://') || direct.startsWith('https://');
+        result = isUrl ? direct : `https://flagpedia.net/data/flags/w580/${direct}.png`;
+      } else {
         const partial = findPartial(query, COUNTRY_FLAGS);
-        if (partial) result = `https://flagcdn.com/w640/${partial}.png`;
+        if (partial) {
+          const isUrl = partial.startsWith('http://') || partial.startsWith('https://');
+          result = isUrl ? partial : `https://flagpedia.net/data/flags/w580/${partial}.png`;
+        }
       }
       break;
     }
@@ -190,6 +196,13 @@ export function resolveImageUrl(
 
     case 'logo': {
       result = LOGO_IMAGES[q] || LOGO_IMAGES[cleaned] || findPartial(query, LOGO_IMAGES);
+      if (!result && cleaned) {
+        // Fallback: clearbit.com'dan domain bazlı logo dene
+        const domain = cleaned.replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+        if (domain.length >= 2) {
+          result = `https://logo.clearbit.com/${domain}.com?size=256`;
+        }
+      }
       break;
     }
 
