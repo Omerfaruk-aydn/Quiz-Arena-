@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
@@ -21,11 +21,9 @@ export function MathSprintBoard({
   showResult,
   onPick,
 }: MathSprintBoardProps) {
-  const [showHint, setShowHint] = useState(false);
   const [pulseKey, setPulseKey] = useState(0);
 
   useEffect(() => {
-    setShowHint(false);
     setPulseKey((k) => k + 1);
   }, [questionText]);
 

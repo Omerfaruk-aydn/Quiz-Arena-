@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface MemoryMatchBoardProps {
   answers: Array<{ text: string; color: string }>;
