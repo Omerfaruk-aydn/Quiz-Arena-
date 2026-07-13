@@ -834,44 +834,6 @@ export const LOGO_IMAGES: Record<string, string> = {
   // Red Bull
   'red bull': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
   redbull: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
-  'coca cola':
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
-  cocacola:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
-  pepsi:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Pepsi_logo_2014.svg/200px-Pepsi_logo_2014.svg.png',
-  starbucks:
-    'https://en.wikipedia.org/wiki/Special:FilePath/Starbucks%20Coffee%20Logo.svg?width=960',
-  amazon:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/300px-Amazon_logo.svg.png',
-  google:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/300px-Google_2015_logo.svg.png',
-  microsoft:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png',
-  facebook:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/200px-2021_Facebook_icon.svg.png',
-  twitter:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/200px-Logo_of_Twitter.svg.png',
-  x: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/X_logo_2023.svg/200px-X_logo_2023.svg.png',
-  instagram:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/200px-Instagram_logo_2016.svg.png',
-  youtube:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/YouTube_social_white_squircle_%282017%29.svg/200px-YouTube_social_white_squircle_%282017%29.svg.png',
-  spotify:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/200px-Spotify_logo_without_text.svg.png',
-  netflix:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/300px-Netflix_2015_logo.svg.png',
-  tesla:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/200px-Tesla_Motors.svg.png',
-  toyota:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Toyota_carlogo.svg/200px-Toyota_carlogo.svg.png',
-  volkswagen:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Volkswagen_logo_2019.svg/200px-Volkswagen_logo_2019.svg.png',
-  audi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Audi_logo.svg/200px-Audi_logo.svg.png',
-  ferrari: 'https://en.wikipedia.org/wiki/Special:FilePath/Prancing%20horse.svg?width=960',
-  lamborghini: 'https://en.wikipedia.org/wiki/Special:FilePath/Lamborghini%20Logo.svg?width=960',
-  porsche:
-    'https://commons.wikimedia.org/wiki/Special:FilePath/Porsche-Automarken-Logo.jpg?width=960',
 };
 
 // Ülke haritaları (orthographic projection)
