@@ -359,15 +359,18 @@ function buildPictionaryPrompt(input: PromptInput): string {
     'gözlük', 'anahtar', 'çanta', 'saat', 'ayakkabı', 'şapka', 'kalem', 'kitap', 'masa', 'sandalye',
   ];
 
-  return `Sen bir çiz-tahmin (Pictionary) oyunu yazarısın. ${input.questionCount} adet görsel temsil sorusu üret.
+  return `Sen bir çiz-tahmin (Pictionary) oyunu yazarısın. ${input.questionCount} adet soru üret.
 
 KURALLAR
-- Her soru: "Bu çizim/sembol neyi temsil ediyor?" şeklinde olsun.
+- Her soru metni SADECE çizilmesi gereken nesnenin adı olsun (örn: "kedi", "güneş", "araba").
+- Soru metni "Bu çizim neyi temsil ediyor?" gibi genel bir ifade DEĞİL, doğrudan nesne adı olsun.
 - Çizim nesneleri somut, kolayca çizilebilir ve tanınabilir olsun.
-- Örnek nesneler: ${PICTONARY_OBJECTS.join(', ')}.
-- 4 şık: 1 doğru nesne/kavram, 3 yanlış ama görsel olarak benzer olabilecek.
-- Yanlış şıklar aynı kategoriden olsun (örneğin hayvan ise diğer hayvanlar, yiyecek ise diğer yiyecekler).
-- Açıklama: "Bu çizim [doğru cevap] nesnesini temsil ediyor." şeklinde kısa olsun.
+- Kullanılacak nesneler bu listeden seç: ${PICTONARY_OBJECTS.join(', ')}.
+- 4 şık: 1 doğru nesne (soru metni ile aynı), 3 yanlış ama aynı kategoriden nesne.
+  - Örnek: soru "kedi" ise şıklar: "kedi" (doğru), "köpek", "tavşan", "kuş" (yanlış - hayvanlar)
+  - Örnek: soru "güneş" ise şıklar: "güneş" (doğru), "ay", "yıldız", "bulut" (yanlış - doğa)
+- Yanlış şıklar kesinlikle aynı kategoriden olsun; alakasız nesneler kullanma.
+- Açıklama kısa olsun: "Doğru cevap [cevap]."
 - imageType="", imageQuery="" (görsel yok, oyuncular kendi çizer).
 - Tüm içerikler Türkçe.
 - Sorular birbirinden farklı olsun, aynı nesne tekrar etmesin.
@@ -433,39 +436,9 @@ KURALLAR
 ${OUTPUT_JSON_INSTRUCTION}`;
 }
 
-function buildDrawingBattlePrompt(input: PromptInput): string {
-  const DRAWING_OBJECTS = [
-    // Kolay çizilebilir nesneler (1-3 kelime)
-    'elma', 'muz', 'kedi', 'köpek', 'ev', 'ağaç', 'araba', 'uçak', 'güneş', 'ay',
-    'yıldız', 'kalp', 'telefon', 'bisiklet', 'top', 'kitap', 'kalem', 'saat', 'ayakkabı', 'şapka',
-    'kuş', 'balık', 'tavşan', 'at', 'çiçek', 'bulut', 'gökkuşağı', 'dağ', 'nehir', 'göl',
-    'gemi', 'tren', 'otobüs', 'helikopter', 'roket', 'bilgisayar', 'televizyon', 'buzdolabı', 'masa', 'sandalye',
-    'pasta', 'dondurma', 'hamburger', 'pizza', 'çikolata', 'karpuz', 'kiraz', 'portakal', 'şeftali', 'üzüm',
-    'gitar', 'piyano', 'davul', 'keman', 'flüt', 'trompet', 'bateri', 'mızıka', 'saksafon', 'mızıka',
-    'doktor', 'itfaiyeci', 'polis', 'aşçı', 'pilot', 'astronot', 'ressam', 'müzisyen', 'sporcu', 'inşaatçı',
-    'futbol topu', 'basketbol topu', 'tenis raketi', 'kayak', 'sörf tahtası', 'dambıl', 'kupa', 'madalya', 'gol', 'bayrak (yarış)',
-    'gül', 'lale', 'papatya', 'palmiye', 'çam ağacı', 'kaktüs', 'nilüfer', 'orkide', 'menekşe', 'zambak',
-    'yangın', 'deprem', 'göktaşı', 'UFO', 'robot', 'dinozor', 'balon', 'paraşüt', 'çadır', 'kamp ateşi',
-    'şemsiye', 'bıçak', 'tabak', 'bardak', 'çatal', 'kaşık', 'tencere', 'lamba', 'ayna', 'resim',
-    'gözlük', 'anahtar', 'çanta', 'para', 'bina', 'köprü', 'kule', 'gökdelen', 'kilise', 'cami',
-    'okul', 'hastane', 'stadyum', 'havalimanı', 'liman', 'park', 'bahçe', 'çiftlik', 'fabrika', 'market',
-    'kelebek', 'karınca', 'arı', 'penguen', 'kaplumbağa', 'yılan', 'kurbağa', 'baykuş', 'papağan', 'yunus',
-    'maymun', 'fil', 'aslan', 'zürafa', 'ayı', 'kurt', 'tilki', 'geyik', 'sincap', 'köstebek',
-    'kar tanesi', 'dalga', 'volkan', 'ada', 'orman', 'çöl', 'buzul', 'mağara', 'kumsal', 'şelale',
-  ];
-
-  return `Sen bir "Çizim Savaşı" oyunu yazarısın. ${input.questionCount} adet çizim tahmini sorusu üret.
-
-KURALLAR
-- Her soruda oyuncuların çizmesi gereken bir nesne/kavram verilir.
-- Çizim konusu 1-3 kelime arası, Türkçe ve kolayca tanınabilir olsun.
-- Kullanılacak nesneler: ${DRAWING_OBJECTS.join(', ')}.
-- 4 şık: 1 doğru cevap (çizilmesi gereken nesnenin kendisi), 3 görsel olarak benzer/yakın yanlış alternatif.
-- Yanlış şıklar aynı kategoriden olsun (örneğin hayvan ise diğer hayvanlar, yiyecek ise diğer yiyecekler).
-- Açıklama: "Doğru cevap [cevap] çünkü bu nesne kolayca çizilebilir ve tanınabilir." şeklinde kısa olsun.
-- imageType="", imageQuery="" (görsel yok, oyuncular kendi çizer).
-- Tüm içerikler Türkçe.
-- Sorular birbirinden farklı olsun, aynı nesne tekrar etmesin.
-
-${OUTPUT_JSON_INSTRUCTION}`;
+function buildDrawingBattlePrompt(_input: PromptInput): string {
+  // drawing_battle modunda sorular GameRoom tarafından atanır (DRAWING_TARGETS).
+  // AI soru üretimi gerekmez — boş array döndür.
+  return `Sadece şu JSON formatında boş array dön:
+{"questions": []}`;
 }

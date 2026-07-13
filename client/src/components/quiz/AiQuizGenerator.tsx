@@ -100,7 +100,8 @@ export function AiQuizGenerator({
             {gameMode === 'matching' && 'Eşleştirme tabanlı bilgi soruları üretilir.'}
             {gameMode === 'memory_match' && 'Hafıza kartı eşleştirme soruları üretilir.'}
             {gameMode === 'simon_says' && 'Renk dizisi tamamlama soruları üretilir.'}
-            {gameMode === 'pictionary' && 'Çizim/sembol temsil soruları üretilir.'}
+            {gameMode === 'pictionary' && 'Oyuncuların çizip tahmin edeceği nesneler/kavramlar üretilir.'}
+            {gameMode === 'drawing_battle' && '⚠️ Çizim Savaşı modunda sorular otomatik olarak sistem tarafından atanır. Soru üretimi gerekmez.'}
             {gameMode === 'fibbage' &&
               'İnandırıcı yalanlar içeren az bilinen gerçek soruları üretilir.'}
             {gameMode === 'survey' && 'Tartışmalı anket/opinion soruları üretilir.'}
@@ -169,6 +170,12 @@ export function AiQuizGenerator({
 
         {/* Generate Button */}
         <div className="mt-6">
+          {gameMode === 'drawing_battle' ? (
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-center">
+              <p className="text-sm font-medium text-amber-400">✏️ Çizim Savaşı</p>
+              <p className="mt-1 text-xs text-text-muted">Bu modda sorular otomatik atanır. Oyuncular çizim yapar, AI değerlendirir.</p>
+            </div>
+          ) : (
           <Button
             onClick={() => generateMutation.mutate()}
             loading={generateMutation.isPending}
@@ -186,6 +193,7 @@ export function AiQuizGenerator({
               </>
             )}
           </Button>
+          )}
         </div>
 
         {/* Preview */}
