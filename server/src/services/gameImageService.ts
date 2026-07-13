@@ -1,5 +1,5 @@
-import { prisma } from '../../config/prisma.js';
-import type { ImageCategory } from '../../generated/prisma/client.js';
+import { prisma } from '../config/prisma.js';
+import type { ImageCategory } from '../generated/prisma/client.js';
 
 type ImageType = ImageCategory;
 
@@ -78,7 +78,7 @@ export const imageDbService = {
     return {
       total,
       totalUsageCount: totalUsed._sum.usageCount ?? 0,
-      categories: categories.reduce((acc, c) => { acc[c.category] = c._count.id; return acc; }, {} as Record<string, number>),
+      categories: categories.reduce((acc: Record<string, number>, c: { category: string; _count: { id: number } }) => { acc[c.category] = c._count.id; return acc; }, {} as Record<string, number>),
     };
   },
 
