@@ -158,7 +158,12 @@ KURALLAR
 - Şıklar sadece marka/şirket adı olsun (maks. 40 karakter).
 - Açıklama: logonun sahibi hakkında 1 kısa cümle.
 - imageType: "logo" ZORUNLU — HER soru için logo görseli olsun.
-- imageQuery: doğru cevabın küçük harf, noktalamasız hali. Örnek: doğru cevap "Nike" ise imageQuery: "nike".
+- imageQuery: doğru cevabın SADECE marka adı, küçük harf, noktalama yok. Örnekler:
+  * Doğru cevap "Nike" → imageQuery: "nike"
+  * Doğru cevap "Coca-Cola" → imageQuery: "coca cola"
+  * Doğru cevap "McDonald's" → imageQuery: "mcdonalds"
+  * Doğru cevap "Mercedes-Benz" → imageQuery: "mercedes"
+  ASLA "Bu markanın logosudur" veya soru metnini imageQuery'ya yazma!
 - Sorular birbirinden farklı markalar/kuruluşlar olsun.
 - Tüm metinler Türkçe; marka isimleri özgün kalabilir.
 
@@ -170,8 +175,13 @@ function buildFlagGuessPrompt(input: PromptInput): string {
 
 KURALLAR
 - Her soru ya "Bu hangi ülkenin bayrağıdır?" şeklinde bayrak sorusu, ya da "[Başkent] hangi ülkenin başkentidir?" şeklinde başkent sorusu olsun.
-- Bayrak sorularında imageType: "flag" ZORUNLU, imageQuery: ülke adının küçük harf hali (örn: "türkiye", "japonya").
-- Başkent sorularında imageType: "flag" ZORUNLU, imageQuery: doğru cevap ülke adının küçük harf hali.
+- Bayrak sorularında imageType: "flag" ZORUNLU.
+- Başkent sorularında imageType: "flag" ZORUNLU.
+- imageQuery: doğru cevap ülkenin SADECE adı, küçük harf. Örnekler:
+  * Doğru cevap "Türkiye" → imageQuery: "türkiye"
+  * Doğru cevap "Japonya" → imageQuery: "japonya"
+  * Doğru cevap "Almanya" → imageQuery: "almanya"
+  ASLA "Bu ülkenin bayrağıdır" veya soru metnini imageQuery'ya yazma! SADECE ülke adı yaz.
 - 4 şık: 1 doğru, 3 yanlış ülke. Yanlış şıklar coğrafi olarak yakın ülkelerden olsun.
 - Şıklar ülke adı olsun.
 - Açıklama kısa ve bilgilendirici olsun; bayrağın renklerini veya coğrafi bilgiyi kısaca belirt.
@@ -300,16 +310,36 @@ ${OUTPUT_JSON_INSTRUCTION}`;
 }
 
 function buildMemoryMatchPrompt(input: PromptInput): string {
-  return `Sen bir hafıza kartları oyunu yazarısın. ${input.questionCount} adet "eşleşen kart hangisi?" sorusu üret.
+  return `Sen bir hafıza kartları oyunu yazarısın. ${input.questionCount} adet soru üret.
 
 KURALLAR
-- Her soruda bir açık kart ve 4 kapalı kart seçeneği verilir.
-- Açık kart bir emoji, kelime, renk veya kavram olsun.
-- 4 şıktan biri açık kartın eşleniği olsun (örn: 🍎 → elma, 🔴 → kırmızı, 🐕 → köpek, 🎸 → gitar).
+- Her soruda bir ipucu (açık kart) ve 4 kapalı kart seçeneği verilir.
+- Soru metni: Kısa bir emoji + kelime ipucu olsun (örn: "🍎 Bu meyve hangisi?", "🔴 Bu renk hangisi?", "🎵 Bu enstrüman hangisi?").
+- 4 şıktan biri ipucunun doğru eşleşmesi olsun.
 - Yanlış şıklar benzer kategoriden olsun (ör: 🍎 → armut, muz, portakal gibi yanlış meyveler).
+- Şıklar kısa ve net olsun (maks. 30 karakter).
 - Açıklama: "Doğru eşleşme [cevap] çünkü [kısa açıklama]."
 - imageType="", imageQuery="".
 - Tüm içerikler Türkçe.
+
+ÖRNEK ÇIKTI:
+{
+  "questions": [
+    {
+      "text": "🍎 Bu meyve hangisi?",
+      "type": "multiple_choice",
+      "answers": [
+        { "text": "Elma", "isCorrect": true },
+        { "text": "Armut", "isCorrect": false },
+        { "text": "Muz", "isCorrect": false },
+        { "text": "Portakal", "isCorrect": false }
+      ],
+      "explanation": "Doğrusu Elma çünkü 🍎 elma emojisini temsil eder.",
+      "imageType": "",
+      "imageQuery": ""
+    }
+  ]
+}
 
 ${OUTPUT_JSON_INSTRUCTION}`;
 }
@@ -374,6 +404,27 @@ KURALLAR
 - imageType="", imageQuery="" (görsel yok, oyuncular kendi çizer).
 - Tüm içerikler Türkçe.
 - Sorular birbirinden farklı olsun, aynı nesne tekrar etmesin.
+
+ÖRNEK ÇIKTI (text alanı SADECE nesne adı olmalı):
+{
+  "questions": [
+    {
+      "text": "kedi",
+      "type": "multiple_choice",
+      "answers": [
+        { "text": "Kedi", "isCorrect": true },
+        { "text": "Köpek", "isCorrect": false },
+        { "text": "Tavşan", "isCorrect": false },
+        { "text": "Kuş", "isCorrect": false }
+      ],
+      "explanation": "Doğru cevap kedi.",
+      "imageType": "",
+      "imageQuery": ""
+    }
+  ]
+}
+
+ÖNEMLİ: text alanına ASLA "Bu çizim neyi temsil ediyor?" veya benzeri bir ifade yazma. SADECE nesne adı yaz.
 
 ${OUTPUT_JSON_INSTRUCTION}`;
 }

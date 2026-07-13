@@ -9,8 +9,15 @@ const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 export const TEXT_MODEL = 'deepseek/deepseek-v4-flash';
 
 // Vision model (drawing analysis, meme evaluation, visual recognition)
-// Gemini 3.1 Flash Lite: fast & cheap multimodal
-export const VISION_MODEL = 'google/gemini-3.1-flash-lite';
+// Gemini 2.0 Flash Lite: fast & cheap multimodal
+export const VISION_MODEL = 'google/gemini-2.0-flash-lite-001';
+
+// Vision fallback models — birincisi çalışmazsa bunlar denenir
+export const VISION_FALLBACK_MODELS = [
+  'google/gemini-2.0-flash-lite',
+  'google/gemini-flash-1.5',
+  'google/gemini-pro-vision',
+];
 
 // Token limits — generous since models are cheap
 export const MAX_TOKENS = 32768;        // text output max (DeepSeek limit)
@@ -105,54 +112,69 @@ export async function callVisionModel(
     throw ApiError.badRequest('Gecersiz gorsel formati', 'INVALID_IMAGE');
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  // Ana model + fallback modelleri dene
+  const modelsToTry = [VISION_MODEL, ...VISION_FALLBACK_MODELS];
+  let lastError: Error | null = null;
 
-  try {
-    const response = await fetch(OPENROUTER_URL, {
-      method: 'POST',
-      headers: buildHeaders(),
-      body: JSON.stringify({
-        model: VISION_MODEL,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: textPrompt },
-              { type: 'image_url', image_url: { url: imageBase64 } },
-            ],
-          },
-        ],
-        temperature: 0.5,
-        max_tokens: maxTokens,
-      }),
-      signal: controller.signal,
-    });
+  for (const model of modelsToTry) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-    if (!response.ok) {
-      const errText = await response.text();
-      logger.error('Vision API hatasi', { status: response.status, error: errText });
-      throw ApiError.internal('AI gorsel isleme hatasi');
+    try {
+      const response = await fetch(OPENROUTER_URL, {
+        method: 'POST',
+        headers: buildHeaders(),
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: textPrompt },
+                { type: 'image_url', image_url: { url: imageBase64 } },
+              ],
+            },
+          ],
+          temperature: 0.5,
+          max_tokens: maxTokens,
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        logger.warn('Vision API model hatasi, fallback deneniyor', { model, status: response.status, error: errText });
+        lastError = new Error(`Vision model ${model} failed: ${response.status}`);
+        continue; // Sonraki modeli dene
+      }
+
+      const data = (await response.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) {
+        logger.warn('Vision model bos yanit dondurdu, fallback deneniyor', { model });
+        lastError = new Error(`Vision model ${model} returned empty`);
+        continue;
+      }
+
+      return content;
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        logger.warn('Vision model zaman asimi, fallback deneniyor', { model });
+        lastError = new Error(`Vision model ${model} timed out`);
+        continue;
+      }
+      lastError = err instanceof Error ? err : new Error(String(err));
+      continue;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    const data = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) {
-      throw ApiError.internal('Vision model bos yanit dondurdu');
-    }
-
-    return content;
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === 'AbortError') {
-      throw ApiError.internal('AI gorsel analizi zaman asimina ugradi');
-    }
-    throw err;
-  } finally {
-    clearTimeout(timeout);
   }
+
+  // Tüm modeller başarısız oldu
+  throw lastError || ApiError.internal('Tum vision modelleri basarisiz oldu');
 }
 
 /**

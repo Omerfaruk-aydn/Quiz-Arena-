@@ -25,22 +25,46 @@ function normalize(input: string): string {
     .trim();
 }
 
+// AI'ın imageQuery alanına yazdığı gereksiz kelimeleri temizle.
+// Örn: "Bu Apple logosudur" → "apple", "Türkiye'nin bayrağı" → "turkiye"
+const STOPWORDS = [
+  'bu', 'hangi', 'marka', 'markanin', 'logosu', 'logosudur', 'sirketi',
+  'sirket', 'ulke', 'ulkenin', 'bayragi', 'bayragidir', 'baskent',
+  'baskenti', 'baskentidir', 'film', 'filmi', 'sahne', 'poster',
+  'kime', 'ait', 'nedir', 'kimdir', 'nerede', 'hangisi',
+  'dogru', 'cevap', 'secenegi', 'secenek',
+];
+
+function extractSearchQuery(raw: string): string {
+  const n = normalize(raw);
+  if (n.length < 2) return n;
+  const words = n.split(/\s+/).filter((w) => w.length >= 2 && !STOPWORDS.includes(w));
+  return words.length > 0 ? words.join(' ') : n;
+}
+
 function findPartial(query: string, map: Record<string, string>): string | undefined {
   const q = normalize(query);
   if (q.length < 2) return undefined;
 
+  // Temizlenmiş sorgu ile de dene (AI gereksiz kelimeler eklemiş olabilir)
+  const cleaned = extractSearchQuery(query);
+  const queries = [q];
+  if (cleaned !== q && cleaned.length >= 2) queries.push(cleaned);
+
   const keys = Object.keys(map);
 
-  // 1) Key contains query (query = "türkiye", key = "türkiye cumhuriyeti")
-  const keyContainsQuery = keys.find((k) => normalize(k).includes(q));
-  if (keyContainsQuery) return map[keyContainsQuery];
+  for (const tryQ of queries) {
+    // 1) Key contains query (query = "türkiye", key = "türkiye cumhuriyeti")
+    const keyContainsQuery = keys.find((k) => normalize(k).includes(tryQ));
+    if (keyContainsQuery) return map[keyContainsQuery];
 
-  // 2) Query contains key (query = long question text, key = "mona lisa")
-  const queryContainsKey = keys.find((k) => {
-    const nk = normalize(k);
-    return nk.length >= 2 && q.includes(nk);
-  });
-  if (queryContainsKey) return map[queryContainsKey];
+    // 2) Query contains key (query = long question text, key = "mona lisa")
+    const queryContainsKey = keys.find((k) => {
+      const nk = normalize(k);
+      return nk.length >= 2 && tryQ.includes(nk);
+    });
+    if (queryContainsKey) return map[queryContainsKey];
+  }
 
   return undefined;
 }
@@ -138,72 +162,74 @@ export function resolveImageUrl(
 
   const t = normalize(String(type)).replace(/\s+/g, '_') as ImageType;
   const q = normalize(query);
+  const cleaned = extractSearchQuery(query); // AI'ın gereksiz kelimelerini temizle
 
   let result: string | undefined;
 
   switch (t) {
     case 'flag': {
-      const direct = COUNTRY_FLAGS[q];
+      // Doğrudan eşleşme (normalize edilmiş sorgu)
+      const direct = COUNTRY_FLAGS[q] || COUNTRY_FLAGS[cleaned];
       if (direct) result = `https://flagcdn.com/w640/${direct}.png`;
       else {
-        const partial = findPartial(q, COUNTRY_FLAGS);
+        const partial = findPartial(query, COUNTRY_FLAGS);
         if (partial) result = `https://flagcdn.com/w640/${partial}.png`;
       }
       break;
     }
 
     case 'landmark': {
-      result = LANDMARK_IMAGES[q] || findPartial(q, LANDMARK_IMAGES);
+      result = LANDMARK_IMAGES[q] || LANDMARK_IMAGES[cleaned] || findPartial(query, LANDMARK_IMAGES);
       break;
     }
 
     case 'person': {
-      result = PEOPLE_IMAGES[q] || findPartial(q, PEOPLE_IMAGES);
+      result = PEOPLE_IMAGES[q] || PEOPLE_IMAGES[cleaned] || findPartial(query, PEOPLE_IMAGES);
       break;
     }
 
     case 'logo': {
-      result = LOGO_IMAGES[q] || findPartial(q, LOGO_IMAGES);
+      result = LOGO_IMAGES[q] || LOGO_IMAGES[cleaned] || findPartial(query, LOGO_IMAGES);
       break;
     }
 
     case 'film': {
-      result = FILM_IMAGES[q] || findPartial(q, FILM_IMAGES);
+      result = FILM_IMAGES[q] || FILM_IMAGES[cleaned] || findPartial(query, FILM_IMAGES);
       break;
     }
 
     case 'map': {
-      result = MAP_IMAGES[q] || findPartial(q, MAP_IMAGES);
+      result = MAP_IMAGES[q] || MAP_IMAGES[cleaned] || findPartial(query, MAP_IMAGES);
       break;
     }
 
     case 'artwork': {
-      result = ARTWORK_IMAGES[q] || findPartial(q, ARTWORK_IMAGES);
+      result = ARTWORK_IMAGES[q] || ARTWORK_IMAGES[cleaned] || findPartial(query, ARTWORK_IMAGES);
       break;
     }
 
     case 'animal': {
-      result = ANIMAL_IMAGES[q] || findPartial(q, ANIMAL_IMAGES);
+      result = ANIMAL_IMAGES[q] || ANIMAL_IMAGES[cleaned] || findPartial(query, ANIMAL_IMAGES);
       break;
     }
 
     case 'instrument': {
-      result = INSTRUMENT_IMAGES[q] || findPartial(q, INSTRUMENT_IMAGES);
+      result = INSTRUMENT_IMAGES[q] || INSTRUMENT_IMAGES[cleaned] || findPartial(query, INSTRUMENT_IMAGES);
       break;
     }
 
     case 'food': {
-      result = FOOD_IMAGES[q] || findPartial(q, FOOD_IMAGES);
+      result = FOOD_IMAGES[q] || FOOD_IMAGES[cleaned] || findPartial(query, FOOD_IMAGES);
       break;
     }
 
     case 'nature': {
-      result = NATURE_IMAGES[q] || findPartial(q, NATURE_IMAGES);
+      result = NATURE_IMAGES[q] || NATURE_IMAGES[cleaned] || findPartial(query, NATURE_IMAGES);
       break;
     }
 
     case 'architecture': {
-      result = ARCHITECTURE_IMAGES[q] || findPartial(q, ARCHITECTURE_IMAGES);
+      result = ARCHITECTURE_IMAGES[q] || ARCHITECTURE_IMAGES[cleaned] || findPartial(query, ARCHITECTURE_IMAGES);
       break;
     }
 
@@ -224,13 +250,18 @@ export function resolveImageUrl(
         ARCHITECTURE_IMAGES,
       ];
       for (const map of allMaps) {
-        const found = map[q] || findPartial(q, map);
+        const found = map[q] || map[cleaned] || findPartial(query, map);
         if (found) {
           result = found;
           break;
         }
       }
     }
+  }
+
+  // Flag tipi için URL'yi özel olarak oluştur (normalizeWikimediaUrl flagcdn URL'lerini bozabilir)
+  if (t === 'flag' && result && result.includes('flagcdn.com')) {
+    return result;
   }
 
   return normalizeWikimediaUrl(result);
@@ -358,14 +389,30 @@ export function fallbackResolveImage(
   correctAnswer: string,
 ): { url: string; type: ImageType } | undefined {
   const type = detectImageType(text);
-  if (!type) return undefined;
+  if (!type) {
+    // Type tespit edilemediyse, doğru cevapla tüm kütüphanelerde ara
+    const allTypes: ImageType[] = ['logo', 'flag', 'landmark', 'person', 'film', 'map', 'artwork', 'animal', 'instrument', 'food', 'nature', 'architecture'];
+    for (const t of allTypes) {
+      const resolved = resolveImageUrl(t, correctAnswer);
+      if (resolved) return { url: resolved, type: t };
+    }
+    return undefined;
+  }
 
+  // 1. Doğru cevapla dene
   const resolved = resolveImageUrl(type, correctAnswer);
   if (resolved) return { url: resolved, type };
 
-  if (type === 'artwork' || type === 'landmark' || type === 'person') {
-    const fromText = resolveImageUrl(type, text);
-    if (fromText) return { url: fromText, type };
+  // 2. Soru metniyle dene (bazı modlarda doğru bilgi soru metninde olabilir)
+  const fromText = resolveImageUrl(type, text);
+  if (fromText) return { url: fromText, type };
+
+  // 3. Tüm kütüphanelerde ara (type yanlış tespit edilmiş olabilir)
+  const allTypes: ImageType[] = ['logo', 'flag', 'landmark', 'person', 'film', 'map', 'artwork', 'animal', 'instrument', 'food', 'nature', 'architecture'];
+  for (const t of allTypes) {
+    if (t === type) continue; // zaten denendi
+    const resolved2 = resolveImageUrl(t, correctAnswer);
+    if (resolved2) return { url: resolved2, type: t };
   }
 
   return undefined;

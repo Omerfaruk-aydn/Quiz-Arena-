@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+﻿import { useState, useCallback, useEffect } from "react";
+import { motion } from "framer-motion";
 
 interface MemoryMatchBoardProps {
   answers: Array<{ text: string; color: string }>;
@@ -11,10 +11,11 @@ interface MemoryMatchBoardProps {
 }
 
 const GRID_CONFIGS: Record<string, { cols: number; total: number }> = {
-  '3': { cols: 3, total: 6 },
-  '4': { cols: 4, total: 8 },
-  '5': { cols: 5, total: 10 },
-  '6': { cols: 6, total: 12 },
+  "2": { cols: 2, total: 4 },
+  "3": { cols: 3, total: 6 },
+  "4": { cols: 4, total: 8 },
+  "5": { cols: 5, total: 10 },
+  "6": { cols: 6, total: 12 },
 };
 
 export function MemoryMatchBoard({
@@ -26,7 +27,15 @@ export function MemoryMatchBoard({
   onPick,
 }: MemoryMatchBoardProps) {
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
-  const gridConfig = GRID_CONFIGS['4'] ?? { cols: 4, total: 8 };
+
+  // Cevap sayisina gore en uygun grid config sec
+  const answerCount = answers.length;
+  const gridConfig =
+    answerCount <= 4
+      ? GRID_CONFIGS["2"]
+      : answerCount <= 6
+        ? GRID_CONFIGS["3"]
+        : GRID_CONFIGS["4"] ?? { cols: 4, total: 8 };
 
   useEffect(() => {
     setFlipped({});
@@ -42,9 +51,9 @@ export function MemoryMatchBoard({
   );
 
   const cardColors = [
-    '#EF4444', '#3B82F6', '#10B981', '#F59E0B',
-    '#8B5CF6', '#EC4899', '#14B8A6', '#F97316',
-    '#6366F1', '#84CC16',
+    "#EF4444", "#3B82F6", "#10B981", "#F59E0B",
+    "#8B5CF6", "#EC4899", "#14B8A6", "#F97316",
+    "#6366F1", "#84CC16",
   ];
 
   const visibleAnswers = answers.slice(0, gridConfig.total);
@@ -73,15 +82,15 @@ export function MemoryMatchBoard({
             <motion.div
               className="relative h-full w-full"
               animate={{ rotateY: isFlipped ? 180 : 0 }}
-              transition={{ duration: 0.5, type: 'spring', stiffness: 200 }}
-              style={{ transformStyle: 'preserve-3d' }}
+              transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+              style={{ transformStyle: "preserve-3d" }}
             >
               {/* Card Back */}
               <div
                 className="absolute inset-0 flex items-center justify-center rounded-2xl"
                 style={{
                   backgroundColor: cardColors[idx % cardColors.length],
-                  backfaceVisibility: 'hidden',
+                  backfaceVisibility: "hidden",
                 }}
               >
                 <span className="text-4xl font-bold text-white/80">?</span>
@@ -93,17 +102,17 @@ export function MemoryMatchBoard({
                 className="absolute inset-0 flex items-center justify-center rounded-2xl p-2"
                 style={{
                   backgroundColor: isCorrectPick
-                    ? '#10B981'
+                    ? "#10B981"
                     : isWrongPick
-                      ? '#EF4444'
-                      : '#1E293B',
-                  backfaceVisibility: 'hidden',
-                  transform: 'rotateY(180deg)',
+                      ? "#EF4444"
+                      : "#1E293B",
+                  backfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
                   border: isCorrectPick
-                    ? '2px solid #34D399'
+                    ? "2px solid #34D399"
                     : isWrongPick
-                      ? '2px solid #F87171'
-                      : '2px solid #334155',
+                      ? "2px solid #F87171"
+                      : "2px solid #334155",
                 }}
               >
                 <span className="text-center text-sm font-semibold leading-tight text-white">

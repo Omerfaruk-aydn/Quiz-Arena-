@@ -739,18 +739,102 @@ export const ARCHITECTURE_IMAGES: Record<string, string> = {
 };
 
 // Marka logoları (Wikimedia Commons / Wikipedia üzerinden)
+// NOT: AI imageQuery farklı şekillerde üretebilir; olabildiğince çok alias ekleyin.
 export const LOGO_IMAGES: Record<string, string> = {
-  apple:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/200px-Apple_logo_black.svg.png',
+  // Apple
+  apple: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/200px-Apple_logo_black.svg.png',
+  // Nike
   nike: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/250px-Logo_NIKE.svg.png',
-  mcdonalds:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
-  mercedes:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Mercedes-Logo.svg/200px-Mercedes-Logo.svg.png',
+  // McDonald's
+  mcdonalds: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
+  "mcdonald's": 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
+  'mc donalds': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/McDonald%27s_Golden_Arches.svg/200px-McDonald%27s_Golden_Arches.svg.png',
+  // Mercedes
+  mercedes: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Mercedes-Logo.svg/200px-Mercedes-Logo.svg.png',
+  'mercedes benz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Mercedes-Logo.svg/200px-Mercedes-Logo.svg.png',
+  'mercedes-benz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Mercedes-Logo.svg/200px-Mercedes-Logo.svg.png',
+  // BMW
   bmw: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BMW.svg/200px-BMW.svg.png',
-  adidas:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/250px-Adidas_Logo.svg.png',
+  // Adidas
+  adidas: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/250px-Adidas_Logo.svg.png',
+  // Puma
   puma: 'https://commons.wikimedia.org/wiki/Special:FilePath/Puma-logo-(text).svg?width=960',
+  // Coca-Cola — tüm olası yazım varyasyonları
+  'coca cola': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
+  cocacola: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
+  'coca-cola': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
+  cola: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
+  // Pepsi
+  pepsi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Pepsi_logo_2014.svg/200px-Pepsi_logo_2014.svg.png',
+  // Starbucks
+  starbucks: 'https://en.wikipedia.org/wiki/Special:FilePath/Starbucks%20Coffee%20Logo.svg?width=960',
+  // Amazon
+  amazon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/300px-Amazon_logo.svg.png',
+  // Google
+  google: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/300px-Google_2015_logo.svg.png',
+  // Microsoft
+  microsoft: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png',
+  windows: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/200px-Microsoft_logo.svg.png',
+  // Facebook / Meta
+  facebook: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/200px-2021_Facebook_icon.svg.png',
+  meta: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/200px-2021_Facebook_icon.svg.png',
+  // Twitter / X
+  twitter: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/200px-Logo_of_Twitter.svg.png',
+  x: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/X_logo_2023.svg/200px-X_logo_2023.svg.png',
+  // Instagram
+  instagram: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/200px-Instagram_logo_2016.svg.png',
+  // YouTube
+  youtube: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/YouTube_social_white_squircle_%282017%29.svg/200px-YouTube_social_white_squircle_%282017%29.svg.png',
+  // Spotify
+  spotify: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/200px-Spotify_logo_without_text.svg.png',
+  // Netflix
+  netflix: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/300px-Netflix_2015_logo.svg.png',
+  // Tesla
+  tesla: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Tesla_Motors.svg/200px-Tesla_Motors.svg.png',
+  // Toyota
+  toyota: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Toyota_carlogo.svg/200px-Toyota_carlogo.svg.png',
+  // Volkswagen
+  volkswagen: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Volkswagen_logo_2019.svg/200px-Volkswagen_logo_2019.svg.png',
+  vw: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Volkswagen_logo_2019.svg/200px-Volkswagen_logo_2019.svg.png',
+  // Audi
+  audi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Audi_logo.svg/200px-Audi_logo.svg.png',
+  // Ferrari
+  ferrari: 'https://en.wikipedia.org/wiki/Special:FilePath/Prancing%20horse.svg?width=960',
+  // Lamborghini
+  lamborghini: 'https://en.wikipedia.org/wiki/Special:FilePath/Lamborghini%20Logo.svg?width=960',
+  // Porsche
+  porsche: 'https://commons.wikimedia.org/wiki/Special:FilePath/Porsche-Automarken-Logo.jpg?width=960',
+  // Samsung
+  samsung: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/300px-Samsung_Logo.svg.png',
+  // Sony
+  sony: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Sony_logo.svg/300px-Sony_logo.svg.png',
+  // Honda
+  honda: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Honda_Logo.svg/200px-Honda_Logo.svg.png',
+  // Ford
+  ford: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Ford_logo_flat.svg/200px-Ford_logo_flat.svg.png',
+  // Louis Vuitton
+  'louis vuitton': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Louis_Vuitton_logo_and_wordmark.svg/300px-Louis_Vuitton_logo_and_wordmark.svg.png',
+  lv: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Louis_Vuitton_logo_and_wordmark.svg/300px-Louis_Vuitton_logo_and_wordmark.svg.png',
+  // Chanel
+  chanel: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Chanel_logo_interlocking_cs.svg/200px-Chanel_logo_interlocking_cs.svg.png',
+  // Gucci
+  gucci: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gucci_logo.svg/300px-Gucci_logo.svg.png',
+  // IKEA
+  ikea: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Ikea_logo.svg/300px-Ikea_logo.svg.png',
+  // Lego
+  lego: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/300px-LEGO_logo.svg.png',
+  // WhatsApp
+  whatsapp: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/200px-WhatsApp.svg.png',
+  // TikTok
+  tiktok: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/TikTok_logo_2018.svg/200px-TikTok_logo_2018.svg.png',
+  // Uber
+  uber: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Uber_logo_2018.svg/200px-Uber_logo_2018.svg.png',
+  // Airbnb
+  airbnb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Airbnb_Logo_B%C3%A9lo.svg/300px-Airbnb_Logo_B%C3%A9lo.svg.png',
+  // Red Bull
+  'red bull': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
+  redbull: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Red_Bull_logo.svg/300px-Red_Bull_logo.svg.png',
+};
   'coca cola':
     'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Coca-Cola_logo.svg/300px-Coca-Cola_logo.svg.png',
   cocacola:

@@ -133,10 +133,14 @@ async function resolveImages(questions: AiQuizQuestion[]): Promise<AiQuizQuestio
       let resolved: string | undefined;
       let resolvedType = q.imageType;
 
+      // imageQuery eksikse doğru cevabı kullan (AI bazen imageQuery yazmıyor)
+      const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
+      const effectiveQuery = q.imageQuery || correctAnswer;
+
       // 1. Önce veritabanında ara (en güvenilir kaynak)
-      if (q.imageType && q.imageQuery) {
+      if (q.imageType && effectiveQuery) {
         try {
-          const dbImage = await imageDbService.findByKeyword(q.imageType as never, q.imageQuery);
+          const dbImage = await imageDbService.findByKeyword(q.imageType as never, effectiveQuery);
           if (dbImage?.url && isValidImageUrl(dbImage.url)) {
             resolved = dbImage.url;
             await imageDbService.incrementUsage(dbImage.id);
@@ -145,19 +149,23 @@ async function resolveImages(questions: AiQuizQuestion[]): Promise<AiQuizQuestio
       }
 
       // 2. DB'de yoksa hardcoded library'de ara
-      if (!isValidImageUrl(resolved) && q.imageType && q.imageQuery) {
-        resolved = resolveImageUrl(q.imageType, q.imageQuery);
+      if (!isValidImageUrl(resolved) && q.imageType && effectiveQuery) {
+        resolved = resolveImageUrl(q.imageType, effectiveQuery);
       }
 
-      // 3. Fallback: soru metninden ve doğru cevaptan çıkarım yap
+      // 3. imageQuery ile bulunamadıysa, doğru cevapla doğrudan dene
+      if (!isValidImageUrl(resolved) && q.imageType && correctAnswer) {
+        resolved = resolveImageUrl(q.imageType, correctAnswer);
+      }
+
+      // 4. Fallback: soru metninden ve doğru cevaptan çıkarım yap (type detection)
       if (!isValidImageUrl(resolved)) {
-        const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
         const fallback = fallbackResolveImage(q.text, correctAnswer);
         if (fallback) { resolved = fallback.url; resolvedType = fallback.type; }
       }
 
       const finalUrl = isValidImageUrl(resolved) ? resolved : undefined;
-      return { ...q, imageUrl: finalUrl, imageType: finalUrl ? resolvedType : undefined, imageQuery: finalUrl ? q.imageQuery || q.answers.find((a) => a.isCorrect)?.text : undefined };
+      return { ...q, imageUrl: finalUrl, imageType: finalUrl ? resolvedType : undefined, imageQuery: finalUrl ? effectiveQuery : undefined };
     }),
   );
   return resolved;
