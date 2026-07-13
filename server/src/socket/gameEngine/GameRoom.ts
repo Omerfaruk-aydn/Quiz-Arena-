@@ -73,26 +73,34 @@ export class GameRoom {
   private drawingTargets: string[] = [];
 
   private readonly DRAWING_TARGETS = [
-    'elma',
-    'muz',
-    'kedi',
-    'köpek',
-    'ev',
-    'ağaç',
-    'araba',
-    'uçak',
-    'güneş',
-    'ay',
-    'yıldız',
-    'kalp',
-    'telefon',
-    'bisiklet',
-    'top',
-    'kitap',
-    'kalem',
-    'saat',
-    'ayakkabı',
-    'şapka',
+    // Meyveler
+    'elma', 'muz', 'üzüm', 'çilek', 'karpuz', 'kiraz', 'armut', 'portakal', 'ananas', 'şeftali',
+    // Hayvanlar
+    'kedi', 'köpek', 'kuş', 'balık', 'tavşan', 'at', 'inek', 'koyun', 'fil', 'aslan',
+    'kelebek', 'karınca', 'arı', 'penguen', 'kaplumbağa', 'yılan', 'kurbağa', 'baykuş', 'papağan', 'yunus',
+    // Ev & Yaşam
+    'ev', 'araba', 'uçak', 'bisiklet', 'gemi', 'tren', 'otobüs', 'motorsiklet', 'helikopter', 'roket',
+    'telefon', 'bilgisayar', 'televizyon', 'buzdolabı', 'çamaşır makinesi', 'fırın', 'masa', 'sandalye', 'yatak', 'dolap',
+    // Doğa
+    'ağaç', 'çiçek', 'güneş', 'ay', 'yıldız', 'bulut', 'gökkuşağı', 'kar tanesi', 'dalga', 'dağ',
+    'nehir', 'göl', 'şelale', 'volkan', 'ada', 'orman', 'çöl', 'buzul', 'mağara', 'kumsal',
+    // Nesneler
+    'top', 'kitap', 'kalem', 'saat', 'ayakkabı', 'şapka', 'gözlük', 'anahtar', 'para', 'çanta',
+    'şemsiye', 'bıçak', 'tabak', 'bardak', 'çatal', 'kaşık', 'tencere', 'lamba', 'ayna', 'resim',
+    // Semboller & Şekiller
+    'kalp', 'ok', 'haç', 'üçgen', 'kare', 'daire', 'yıldız (5 köşeli)', 'ok (yön)', 'bayrak', 'flama',
+    // Yiyecek & İçecek
+    'pasta', 'dondurma', 'hamburger', 'pizza', 'sosisli', 'kek', 'kurabiye', 'çikolata', 'süt', 'kahve',
+    // Spor & Aktivite
+    'futbol topu', 'basketbol topu', 'tenis raketi', 'kayak', 'sörf tahtası', 'dambıl', 'kupa', 'madalya', 'bayrak (yarış)', 'gol',
+    // Meslekler & İnsan
+    'doktor', 'itfaiyeci', 'polis', 'aşçı', 'pilot', 'astronot', 'ressam', 'müzisyen', 'sporcu', 'inşaatçı',
+    // Enstrümanlar
+    'gitar', 'piyano', 'davul', 'keman', 'flüt', 'trompet', 'saksafon', 'bateri', 'mızıka', 'mızıka',
+    // Bitkiler
+    'gül', 'lale', 'papatya', 'palmiye', 'çam ağacı', 'kaktüs', 'nilüfer', 'orkide', 'menekşe', 'zambak',
+    // Diğer
+    'yangın', 'deprem', 'göktaşı', 'UFO', 'robot', 'dinozor', 'balon', 'paraşüt', 'çadır', 'kamp ateşi',
   ];
 
   constructor(
