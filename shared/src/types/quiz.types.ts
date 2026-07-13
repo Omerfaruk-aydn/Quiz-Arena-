@@ -17,7 +17,8 @@ export type GameMode =
   | 'fibbage'
   | 'survey'
   | 'meme_war'
-  | 'mastermind';
+  | 'mastermind'
+  | 'drawing_battle';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
