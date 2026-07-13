@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import type { QuizSocket } from '../../socket/socketClient';
@@ -24,8 +24,41 @@ export function FibbageBoard({
   hasAnswered,
   showResult,
   onPick,
+  socket,
+  pin,
 }: FibbageBoardProps) {
-  const [phase] = useState<FibbagePhase>('voting');
+  const [phase, setPhase] = useState<FibbagePhase>('voting');
+  const [playerLie, setPlayerLie] = useState('');
+  const [submittedLie, setSubmittedLie] = useState(false);
+  const [playerLies, setPlayerLies] = useState<
+    Array<{ participantId: string; lie: string }>
+  >([]);
+  const [votedFor, setVotedFor] = useState<string | null>(null);
+
+  const handleSubmitLie = useCallback(() => {
+    if (!playerLie.trim() || !socket || !pin || submittedLie) return;
+    socket.emit('fibbage:submit_lie', { pin, lie: playerLie.trim() });
+    setSubmittedLie(true);
+  }, [playerLie, socket, pin, submittedLie]);
+
+  const handleVote = useCallback(
+    (targetParticipantId: string) => {
+      if (votedFor || !socket || !pin) return;
+      socket.emit('fibbage:vote', { pin, targetParticipantId });
+      setVotedFor(targetParticipantId);
+    },
+    [votedFor, socket, pin],
+  );
+
+  const allLies = [
+    ...playerLies,
+    ...answers
+      .filter((_, i) => i === 0)
+      .map((a) => ({
+        participantId: 'correct',
+        lie: a.text,
+      })),
+  ];
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-6">

@@ -13,8 +13,10 @@ interface MatchingBoardProps {
 }
 
 const LEFT_ITEMS = ['🏛️', '🔬', '📖', '🎭', '⚽', '🎨'];
+const RIGHT_ITEMS = ['Tarih', 'Bilim', 'Edebiyat', 'Tiyatro', 'Spor', 'Sanat'];
 
 export function MatchingBoard({
+  questionText,
   answers,
   selectedAnswer,
   correctAnswer,
@@ -58,6 +60,7 @@ export function MatchingBoard({
           {displayItems.map((item, idx) => {
             const i = idx;
             const isSelected = selectedItem === i;
+            const isMatched = matchedPairs[i] !== undefined;
             const isCorrectPick =
               showResult && correctAnswer === i && selectedAnswer === i;
             const isWrongPick =

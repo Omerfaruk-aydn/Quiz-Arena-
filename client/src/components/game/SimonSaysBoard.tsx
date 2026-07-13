@@ -28,6 +28,7 @@ export function SimonSaysBoard({
   onPick,
 }: SimonSaysBoardProps) {
   const [activeColor, setActiveColor] = useState<number | null>(null);
+  const [sequence, setSequence] = useState<number[]>([]);
   const [showSeq, setShowSeq] = useState(true);
 
   const sequenceRef = useRef<number[]>([]);
@@ -38,11 +39,13 @@ export function SimonSaysBoard({
     const colors = ['kırmızı', 'mavi', 'yeşil', 'sarı'];
     const lowerText = questionText.toLowerCase();
 
-    for (let ci = 0; ci < colors.length; ci++) {
-      const col = colors[ci];
-      if (lowerText.includes(col)) {
-        if (!parsedSequence.includes(ci)) {
-          parsedSequence.push(ci);
+    for (const col of colors) {
+      const regex = new RegExp(col, 'gi');
+      let match;
+      while ((match = regex.exec(lowerText)) !== null) {
+        const idx = colors.indexOf(col);
+        if (!parsedSequence.includes(idx)) {
+          parsedSequence.push(idx);
         }
       }
     }
@@ -53,6 +56,7 @@ export function SimonSaysBoard({
     } else {
       sequenceRef.current = [0, 1, 2, 3].slice(0, answers.length);
     }
+    setSequence(sequenceRef.current);
     setShowSeq(true);
 
     // Auto-play the sequence
