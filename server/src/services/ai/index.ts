@@ -2,6 +2,8 @@ import { buildPrompt } from './prompts.js';
 import { callOpenRouter } from './openrouter.js';
 import { fallbackResolveImage, isValidImageUrl, resolveImageUrl } from './imageResolver.js';
 import { imageDbService } from '../gameImageService.js';
+import { logger } from '../../utils/logger.js';
+import { config } from '../../config/index.js';
 import type { AiQuizQuestion, GenerateInput, GenerateResult } from './types.js';
 
 export { MODEL } from './openrouter.js';
@@ -179,7 +181,33 @@ export async function generateQuiz(input: GenerateInput): Promise<GenerateResult
   const prompt = buildPrompt(effectiveInput);
   const raw = await callOpenRouter(prompt, 32768);
   const questions = parseAiResponse(raw);
+
+  // Görsel modlarda AI imageType/imageQuery atamamışsa zorla ata
+  const visualMode = input.gameMode as string;
+  const forcedImageType: Record<string, string> = {
+    logo_guess: 'logo',
+    flag_guess: 'flag',
+    film_guess: 'film',
+  };
+  if (forcedImageType[visualMode]) {
+    for (const q of questions) {
+      const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
+      if (correctAnswer) {
+        q.imageType = forcedImageType[visualMode] as never;
+        q.imageQuery = correctAnswer;
+      }
+    }
+  }
+
   const withImages = input.includeImages ? await resolveImages(questions) : questions;
+
+  const imagesCount = withImages.filter((q) => isValidImageUrl(q.imageUrl)).length;
+  logger.info('AI quiz generated', {
+    mode: input.gameMode,
+    totalQuestions: withImages.length,
+    imagesResolved: imagesCount,
+    logoDevKeySet: !!config.logoDev.apiKey,
+  });
 
   // Strip internal fields from response and discard broken/empty image URLs
   const clientQuestions = withImages.map((q) => ({
