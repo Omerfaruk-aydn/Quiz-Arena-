@@ -286,7 +286,7 @@ export function QuizForm({
     onSubmit(result.data as QuizFormInput);
   };
 
-  // Autosave: debounce 2sn
+  // Autosave: debounce 30sn
   useEffect(() => {
     if (!onAutosave || !quizId) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
@@ -303,7 +303,7 @@ export function QuizForm({
       } catch {
         setAutosaveStatus('error');
       }
-    }, 2000);
+    }, 30000);
 
     return () => {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
