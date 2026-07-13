@@ -16,7 +16,7 @@ import { useSound } from '../../hooks/useSound';
 export function GamePlayerPage() {
   const { pin } = useParams<{ pin: string }>();
   const navigate = useNavigate();
-  const { store, submitAnswer, submitDrawing, sendChat, leaveLobby, useJoker, jokers } = useGame(
+  const { store, submitAnswer, submitDrawing, sendChat, leaveLobby, useJoker, jokers, socket } = useGame(
     pin ?? null,
     'player',
   );
@@ -124,6 +124,8 @@ export function GamePlayerPage() {
               myResult={null}
               onPick={handlePick}
               fiftyFiftyRemoved={store.fiftyFiftyRemoved}
+              socket={socket}
+              pin={pin}
             />
           </motion.div>
         )}

@@ -60,10 +60,23 @@ export function GameLobby({
             {pin}
           </motion.p>
           {quizTitle && <p className="text-lg font-semibold">{quizTitle}</p>}
-          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-sm text-primary">
-            <span>{GAME_MODE_ICONS[gameMode as GameMode] ?? '🎯'}</span>
-            <span>{GAME_MODE_LABELS[gameMode as GameMode] ?? 'Klasik Quiz'}</span>
-          </div>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+            className="mt-3 inline-flex items-center gap-2.5 rounded-full border border-primary/40 bg-gradient-to-r from-primary/15 to-primary/5 px-4 py-2 text-sm text-primary shadow-lg shadow-primary/10"
+          >
+            <motion.span
+              animate={{ rotate: [0, -5, 5, -3, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-lg"
+            >
+              {GAME_MODE_ICONS[gameMode as GameMode] ?? '🎯'}
+            </motion.span>
+            <span className="font-semibold tracking-wide">
+              {GAME_MODE_LABELS[gameMode as GameMode] ?? 'Klasik Quiz'}
+            </span>
+          </motion.div>
           <p className="mt-2 inline-flex items-center gap-1.5 text-text-muted">
             <Users size={16} /> {participants.length} oyuncu bekliyor
           </p>

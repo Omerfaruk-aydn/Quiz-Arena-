@@ -12,6 +12,7 @@ import quizRoutes from './api/routes/quiz.routes.js';
 import gameRoutes from './api/routes/game.routes.js';
 import userRoutes from './api/routes/user.routes.js';
 import aiRoutes from './api/routes/ai.routes.js';
+import gameImagesRoutes from './api/routes/gameImages.routes.js';
 import { notFound, errorHandler } from './api/middlewares/errorHandler.js';
 
 export function createApp(): Application {
@@ -49,6 +50,8 @@ export function createApp(): Application {
   app.use('/api/games', gameRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/ai', aiRoutes);
+
+  app.use('/api/game-images', gameImagesRoutes);
 
   const clientDist = path.resolve(process.cwd(), '../client/dist');
   app.use(express.static(clientDist));

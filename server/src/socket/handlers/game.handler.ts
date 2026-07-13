@@ -1,5 +1,6 @@
 import type { QuizServer, QuizSocket } from '../index.js';
 import { rooms } from '../index.js';
+import { logger } from '../../utils/logger.js';
 
 export function connectGameHandler(_io: QuizServer, socket: QuizSocket): void {
   socket.on('host:start_game', ({ pin }: { pin: string }) => {
@@ -77,5 +78,23 @@ export function connectGameHandler(_io: QuizServer, socket: QuizSocket): void {
     const room = rooms.get(pin);
     if (!room) return;
     void room.submitDrawing(socket.id, image);
+  });
+
+  // Fibbage events
+  socket.on('fibbage:submit_lie', ({ pin, lie }: { pin: string; lie: string }) => {
+    const room = rooms.get(pin);
+    if (!room) return;
+    // Store the lie for the room (future extension)
+    logger.info(`[Fibbage] ${socket.data.nickname ?? '?'} yalan gönderdi: ${lie.substring(0, 50)}`);
+    void lie;
+    void pin;
+  });
+
+  socket.on('fibbage:vote', ({ pin, targetParticipantId }: { pin: string; targetParticipantId: string }) => {
+    const room = rooms.get(pin);
+    if (!room) return;
+    void room.submitAnswer(socket.id, 0, 0);
+    void targetParticipantId;
+    void pin;
   });
 }

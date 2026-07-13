@@ -21,7 +21,9 @@ export function getSocket(): QuizSocket {
     return socket;
   }
   const socketOptions: Record<string, unknown> = {
-    transports: ['polling'],
+    // Prefer WebSocket for low latency; fall back to polling for compatibility
+    // with proxies/firewalls that block WebSocket upgrades.
+    transports: ['websocket', 'polling'],
     auth: (cb: (data: Record<string, unknown>) => void) => {
       const t = localStorage.getItem(STORAGE_KEYS.accessToken);
       cb(t ? { token: t } : {});

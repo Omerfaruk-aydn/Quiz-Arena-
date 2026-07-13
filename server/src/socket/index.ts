@@ -49,23 +49,6 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
     SocketData
   > = io.of(SOCKET_NAMESPACE);
 
-  // Rate limiter: her soket için event sayacı
-  gameNs.use((socket, next) => {
-    const counters = new Map<string, { count: number; resetAt: number }>();
-    const key = socket.id;
-    const now = Date.now();
-    let entry = counters.get(key);
-    if (!entry || entry.resetAt < now) {
-      entry = { count: 0, resetAt: now + 60_000 };
-      counters.set(key, entry);
-    }
-    entry.count += 1;
-    if (entry.count > RATE_LIMITS.socket.max) {
-      return next(new Error('Çok fazla istek'));
-    }
-    next();
-  });
-
   gameNs.use(async (socket, next) => {
     try {
       const auth = socket.handshake.auth as { token?: string };
@@ -83,6 +66,25 @@ export function setupSocketServer(httpServer: HttpServer): QuizServer {
   });
 
   gameNs.on('connection', (socket) => {
+    // Rate limiter: per-socket event counter. Installed inside each connection
+    // so every emitted event counts against the limit, not just the connection.
+    const counter = { count: 0, resetAt: Date.now() + 60_000 };
+    socket.use((packet, next) => {
+      const eventName = packet[0];
+      // Exclude keepalive and ping/pong from the limit to avoid false positives
+      if (eventName === 'ping' || eventName === 'pong') return next();
+      const now = Date.now();
+      if (now > counter.resetAt) {
+        counter.count = 0;
+        counter.resetAt = now + 60_000;
+      }
+      counter.count += 1;
+      if (counter.count > RATE_LIMITS.socket.max) {
+        return next(new Error('Çok fazla istek'));
+      }
+      next();
+    });
+
     logger.info(`Yeni soket bağlandı: ${socket.id}`);
     connectLobbyHandler(gameNs, socket);
     lobbyHandler(gameNs, socket);

@@ -33,14 +33,29 @@ export async function authenticate(
   }
 }
 
-export function authenticateOptional(req: Request, _res: Response, next: NextFunction): void {
+export async function authenticateOptional(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) return next();
   const token = header.slice(7);
   try {
     const { sub } = verifyAccessToken(token);
-    void sub;
-    void next();
+    const user = await prisma.user.findUnique({
+      where: { id: sub },
+      select: { id: true, role: true, name: true, email: true },
+    });
+    if (user) {
+      req.user = {
+        _id: user.id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      } satisfies AuthenticatedUser;
+    }
+    next();
   } catch {
     next();
   }

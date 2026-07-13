@@ -59,58 +59,64 @@ export const getQuiz = asyncHandler(async (req: Request, res: Response) => {
 
 export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
   const input = req.body;
-  const questions = input.questions ?? [];
-  const quiz = await prisma.quiz.create({
-    data: {
-      title: input.title,
-      description: input.description ?? '',
-      creatorId: req.user!._id,
-      category: input.category ?? 'Genel',
-      difficulty: input.difficulty ?? 'medium',
-      gameMode: input.gameMode ?? 'classic',
-      modeSettings: JSON.parse(JSON.stringify(input.modeSettings ?? {})),
-      tags: input.tags ?? [],
-      isPublic: input.isPublic ?? false,
-      settingsDefaultTimeLimit: input.settings?.defaultTimeLimit ?? 30,
-      settingsShowAnswerAfterEach: input.settings?.showAnswerAfterEach ?? true,
-      settingsRandomizeQuestions: input.settings?.randomizeQuestions ?? false,
-      settingsRandomizeAnswers: input.settings?.randomizeAnswers ?? false,
-      settingsMaxParticipants: input.settings?.maxParticipants ?? 0,
-    },
-  });
+  const questions = (input.questions ?? []) as Array<Record<string, unknown>>;
 
-  if (questions.length > 0) {
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i] as Record<string, unknown>;
-      await prisma.question.create({
-        data: {
-          quizId: quiz.id,
-          type: (q.type as QuestionType) ?? 'multiple_choice',
-          text: q.text as string,
-          timeLimit: (q.timeLimit as number) ?? 30,
-          points: (q.points as number) ?? 1000,
-          explanation: (q.explanation as string) ?? '',
-          order: i,
-          imageUrl: (q.image as Record<string, string>)?.url ?? '',
-          imagePublicId: (q.image as Record<string, string>)?.publicId ?? '',
-          answers: q.answers
-            ? {
-                create: (q.answers as Array<Record<string, unknown>>).map((a) => ({
-                  text: a.text as string,
-                  isCorrect: a.isCorrect as boolean,
-                  color: a.color as AnswerColor,
-                })),
-              }
-            : undefined,
-        },
-      });
+  const [fullQuiz] = await prisma.$transaction(async (tx) => {
+    const quiz = await tx.quiz.create({
+      data: {
+        title: input.title,
+        description: input.description ?? '',
+        creatorId: req.user!._id,
+        category: input.category ?? 'Genel',
+        difficulty: input.difficulty ?? 'medium',
+        gameMode: input.gameMode ?? 'classic',
+        modeSettings: JSON.parse(JSON.stringify(input.modeSettings ?? {})),
+        tags: input.tags ?? [],
+        isPublic: input.isPublic ?? false,
+        settingsDefaultTimeLimit: input.settings?.defaultTimeLimit ?? 30,
+        settingsShowAnswerAfterEach: input.settings?.showAnswerAfterEach ?? true,
+        settingsRandomizeQuestions: input.settings?.randomizeQuestions ?? false,
+        settingsRandomizeAnswers: input.settings?.randomizeAnswers ?? false,
+        settingsMaxParticipants: input.settings?.maxParticipants ?? 0,
+      },
+    });
+
+    if (questions.length > 0) {
+      for (let i = 0; i < questions.length; i++) {
+        const q = questions[i] as Record<string, unknown>;
+        await tx.question.create({
+          data: {
+            quizId: quiz.id,
+            type: (q.type as QuestionType) ?? 'multiple_choice',
+            text: q.text as string,
+            timeLimit: (q.timeLimit as number) ?? 30,
+            points: (q.points as number) ?? 1000,
+            explanation: (q.explanation as string) ?? '',
+            order: i,
+            imageUrl: (q.image as Record<string, string>)?.url ?? '',
+            imagePublicId: (q.image as Record<string, string>)?.publicId ?? '',
+            answers: q.answers
+              ? {
+                  create: (q.answers as Array<Record<string, unknown>>).map((a) => ({
+                    text: a.text as string,
+                    isCorrect: a.isCorrect as boolean,
+                    color: a.color as AnswerColor,
+                  })),
+                }
+              : undefined,
+          },
+        });
+      }
     }
-  }
 
-  const fullQuiz = await prisma.quiz.findUnique({
-    where: { id: quiz.id },
-    include: { questions: { orderBy: { order: 'asc' }, include: { answers: true } } },
+    const result = await tx.quiz.findUnique({
+      where: { id: quiz.id },
+      include: { questions: { orderBy: { order: 'asc' }, include: { answers: true } } },
+    });
+
+    return [result];
   });
+
   if (!fullQuiz) throw ApiError.internal('Quiz oluşturulamadı');
   const clientQuiz = toClientQuiz(fullQuiz);
   clientQuiz.questions = fullQuiz.questions.map(toClientQuestion);
@@ -309,9 +315,12 @@ export const reorderQuestions = asyncHandler(async (req: Request, res: Response)
   if (!quiz) throw ApiError.notFound('Quiz bulunamadı', 'QUIZ_NOT_FOUND');
   if (quiz.creatorId !== req.user!._id) throw ApiError.forbidden();
   const { orderedIds } = req.body as { orderedIds: string[] };
-  await Promise.all(
-    orderedIds.map((id, i) => prisma.question.update({ where: { id }, data: { order: i } })),
-  );
+  // Sequential updates prevent order-index collisions within the same transaction.
+  await prisma.$transaction(async (tx) => {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await tx.question.update({ where: { id: orderedIds[i] }, data: { order: i } });
+    }
+  });
   res.json({ success: true });
 });
 

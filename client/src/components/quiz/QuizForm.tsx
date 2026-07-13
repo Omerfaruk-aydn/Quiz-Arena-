@@ -446,23 +446,67 @@ export function QuizForm({
           </div>
 
           <Field label="Oyun Modu">
-            <div className="grid gap-2 sm:grid-cols-2">
-              {GAME_MODES.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => set('gameMode', m)}
-                  className={cn(
-                    'flex items-center gap-3 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-all',
-                    values.gameMode === m
-                      ? 'border-primary bg-primary/15 text-white'
-                      : 'border-border bg-surface-2 text-text-muted hover:border-primary/50',
-                  )}
-                >
-                  <span className="text-xl">{GAME_MODE_ICONS[m]}</span>
-                  <span>{GAME_MODE_LABELS[m]}</span>
-                </button>
-              ))}
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {GAME_MODES.map((m, idx) => {
+                const isActive = values.gameMode === m;
+                const icon = GAME_MODE_ICONS[m];
+                const label = GAME_MODE_LABELS[m];
+
+                return (
+                  <motion.button
+                    key={m}
+                    type="button"
+                    onClick={() => set('gameMode', m)}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: idx * 0.03, type: 'spring', stiffness: 200, damping: 15 }}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.97 }}
+                    className={cn(
+                      'group relative flex flex-col items-center gap-2 rounded-2xl border-2 px-3 py-4 text-center text-sm font-medium transition-all sm:py-5',
+                      isActive
+                        ? 'border-primary/70 bg-gradient-to-b from-primary/20 to-primary/5 text-white shadow-lg shadow-primary/20'
+                        : 'border-border/50 bg-surface-2/50 text-text-muted hover:border-primary/40 hover:bg-primary/5 hover:text-white',
+                    )}
+                  >
+                    {/* Active indicator glow */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="modeGlow"
+                        className="pointer-events-none absolute inset-0 rounded-2xl bg-primary/10"
+                        initial={false}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      />
+                    )}
+
+                    {/* Icon with scale effect */}
+                    <motion.span
+                      className="relative text-2xl"
+                      animate={isActive ? { scale: [1, 1.2, 1], rotate: [0, -5, 5, 0] } : {}}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {icon}
+                    </motion.span>
+
+                    {/* Label */}
+                    <span className="relative text-[11px] font-semibold leading-tight sm:text-xs">
+                      {label}
+                    </span>
+
+                    {/* Selected check */}
+                    {isActive && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 400 }}
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] text-white shadow-lg"
+                      >
+                        ✓
+                      </motion.span>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </Field>
 

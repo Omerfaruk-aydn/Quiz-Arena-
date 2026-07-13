@@ -61,6 +61,16 @@ export interface ServerToClientEvents {
       image: string | null;
     }>;
   }) => void;
+  // Fibbage server events
+  'fibbage:prompt': (payload: { question: string }) => void;
+  'fibbage:lives_collected': (payload: {
+    playerLies: Array<{ participantId: string; lie: string }>;
+    correctAnswer: string;
+  }) => void;
+  'fibbage:results': (payload: {
+    votes: Record<string, number>;
+    correctAnswer: string;
+  }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -103,6 +113,9 @@ export interface ClientToServerEvents {
     ack?: (res: { ok: boolean; error?: string }) => void,
   ) => void;
   'drawing:submit': (payload: { pin: string; image: string }) => void;
+  // Fibbage client events
+  'fibbage:submit_lie': (payload: { pin: string; lie: string }) => void;
+  'fibbage:vote': (payload: { pin: string; targetParticipantId: string }) => void;
 }
 
 export interface InterServerEvents {

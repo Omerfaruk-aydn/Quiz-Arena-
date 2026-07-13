@@ -438,17 +438,27 @@ export class GameRoom {
     const target = this.drawingTargets[this.currentIndex] ?? 'elma';
     const results: Array<{ participantId: string; score: number; feedback: string }> = [];
 
-    // AI analyze drawings
-    for (const [participantId, imageBase64] of this.drawings.entries()) {
-      try {
-        const { analyzeDrawing } = await import('../../services/ai/openrouter.js');
-        const analysis = await analyzeDrawing(target, imageBase64);
-        results.push({ participantId, ...analysis });
-      } catch (err) {
-        logger.warn('Çizim analizi hatası', { err });
-        results.push({ participantId, score: 0, feedback: 'Analiz yapılamadı' });
-      }
-    }
+    // AI analyze drawings — PARALLEL for performance
+    // Uses Gemini 2.5 Flash (VISION_MODEL) for superior accuracy
+    const { analyzeDrawing } = await import('../../services/ai/openrouter.js');
+    const analysisResults = await Promise.all(
+      Array.from(this.drawings.entries()).map(
+        async ([participantId, imageBase64]): Promise<{
+          participantId: string;
+          score: number;
+          feedback: string;
+        }> => {
+          try {
+            const analysis = await analyzeDrawing(target, imageBase64);
+            return { participantId, ...analysis };
+          } catch (err) {
+            logger.warn('Çizim analizi hatası', { err });
+            return { participantId, score: 0, feedback: 'Analiz yapılamadı' };
+          }
+        },
+      ),
+    );
+    results.push(...analysisResults);
 
     // Give partial participation points to players who didn't submit
     for (const p of this.players.values()) {

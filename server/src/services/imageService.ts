@@ -8,9 +8,12 @@ const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 let configured = false;
+let configAttempted = false;
 
 export function configureCloudinary(): void {
   if (configured) return;
+  if (configAttempted) return;
+  configAttempted = true;
   if (!config.cloudinary.cloudName || !config.cloudinary.apiKey) {
     logger.warn('Cloudinary yapılandırılmamış, görsel yükleme devre dışı');
     return;

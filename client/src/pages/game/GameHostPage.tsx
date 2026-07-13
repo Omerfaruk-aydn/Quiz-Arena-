@@ -12,6 +12,7 @@ import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES } from '../../lib/constants';
 import { useSound } from '../../hooks/useSound';
+import { GAME_MODE_ICONS, GAME_MODE_LABELS } from '../../types';
 
 export function GameHostPage() {
   const { pin } = useParams<{ pin: string }>();
@@ -26,6 +27,7 @@ export function GameHostPage() {
     submitAnswer,
     useJoker,
     jokers,
+    socket,
   } = useGame(pin ?? null, 'host');
   const [quizTitle, setQuizTitle] = useState<string | undefined>();
   const questionStartRef = useRef<number>(Date.now());
@@ -97,7 +99,7 @@ export function GameHostPage() {
               }}
               quizTitle={quizTitle}
               gameMode={store.gameMode}
-            />
+gameMode=
           </motion.div>
         )}
 
@@ -120,6 +122,7 @@ export function GameHostPage() {
                 void endGame();
                 navigate(ROUTES.dashboard);
               }}
+              gameMode={store.gameMode}
             />
             <div className="flex flex-1 flex-col items-center justify-center p-4">
               <div className="glass p-6 text-center">
@@ -165,6 +168,8 @@ export function GameHostPage() {
               myResult={null}
               onPick={handlePick}
               fiftyFiftyRemoved={store.fiftyFiftyRemoved}
+              socket={socket}
+              pin={pin}
             />
           </motion.div>
         )}
@@ -183,6 +188,7 @@ export function GameHostPage() {
                   void endGame();
                   navigate(ROUTES.dashboard);
                 }}
+                gameMode={store.gameMode}
               />
               {store.drawingTarget && store.drawingResults.length > 0 ? (
                 <DrawingResults target={store.drawingTarget} results={store.drawingResults} />
@@ -206,6 +212,7 @@ export function GameHostPage() {
                   void endGame();
                   navigate(ROUTES.dashboard);
                 }}
+                gameMode={store.gameMode}
               />
               <GameQuestion
                 question={store.currentQuestion}
@@ -223,6 +230,8 @@ export function GameHostPage() {
                 answerStats={store.answerStats}
                 myResult={store.myResult}
                 onPick={() => undefined}
+                socket={socket}
+                pin={pin}
               />
               <p className="pb-6 text-center text-sm text-text-muted">Sıralama hazırlanıyor…</p>
             </motion.div>
@@ -280,44 +289,78 @@ function HostBar({
   total,
   distribution,
   onEnd,
+  gameMode,
 }: {
   pin: string;
   answeredCount: number;
   total: number;
   distribution: number[];
   onEnd: () => void;
+  gameMode?: string;
 }) {
+  const modeInfo = gameMode
+    ? { icon: GAME_MODE_ICONS[gameMode as keyof typeof GAME_MODE_ICONS] ?? '🎯', label: GAME_MODE_LABELS[gameMode as keyof typeof GAME_MODE_LABELS] ?? '' }
+    : null;
+
   return (
-    <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-8">
+    <motion.div
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className="flex items-center justify-between border-b border-border/50 bg-gradient-to-r from-surface-1/80 to-surface-1/40 px-4 py-3 backdrop-blur-sm sm:px-8"
+    >
       <div className="flex items-center gap-4">
-        <span className="font-mono text-sm text-text-muted">PIN: {pin}</span>
-        <span className="text-sm">
-          <span className="font-semibold text-primary">{answeredCount}</span>
-          <span className="text-text-muted"> / {total} cevapladı</span>
-        </span>
+        <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5">
+          <span className="font-mono text-xs font-bold tracking-wider text-primary">PIN:</span>
+          <span className="font-mono text-sm font-bold text-white">{pin}</span>
+        </div>
+        {modeInfo && (
+          <div className="hidden items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 sm:flex">
+            <span className="text-xs">{modeInfo.icon}</span>
+            <span className="text-xs text-text-muted">{modeInfo.label}</span>
+          </div>
+        )}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        <motion.div
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          className="flex items-center gap-2"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15">
+            <span className="text-xs font-bold text-primary">{answeredCount}</span>
+          </div>
+          <span className="text-xs text-text-muted">
+            / <span className="font-semibold text-white">{total}</span> cevapladı
+          </span>
+        </motion.div>
         <div className="hidden items-center gap-1 sm:flex">
           {distribution.map((c, i) => (
-            <span
+            <motion.span
               key={i}
-              className="rounded px-1.5 py-0.5 text-xs font-mono"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: i * 0.05 }}
+              className="flex min-w-[22px] items-center justify-center rounded-md px-1.5 py-1 text-xs font-mono font-bold tabular-nums"
               style={{
                 backgroundColor: ['#EF4444', '#3B82F6', '#F59E0B', '#10B981'][i] + '30',
                 color: ['#EF4444', '#3B82F6', '#F59E0B', '#10B981'][i],
               }}
             >
               {c}
-            </span>
+            </motion.span>
           ))}
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
           onClick={onEnd}
-          className="rounded-lg border border-border px-3 py-1.5 text-xs text-text-muted hover:border-wrong/50 hover:text-wrong"
+          className="rounded-lg border border-border/50 px-3 py-1.5 text-xs text-text-muted transition-all hover:border-wrong/50 hover:bg-wrong/10 hover:text-wrong"
         >
           Oyunu Bitir
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+

@@ -1,6 +1,7 @@
 import { buildPrompt } from './prompts.js';
 import { callOpenRouter } from './openrouter.js';
 import { fallbackResolveImage, isValidImageUrl, resolveImageUrl } from './imageResolver.js';
+import { imageDbService } from '../gameImageService.js';
 import type { AiQuizQuestion, GenerateInput, GenerateResult } from './types.js';
 
 export { MODEL } from './openrouter.js';
@@ -12,6 +13,11 @@ const MAX_EXPLANATION_LEN = 400;
 
 function isValidImageType(value: unknown): boolean {
   if (typeof value !== 'string') return false;
+  const normalized = value
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
   const allowed = new Set([
     'flag',
     'landmark',
@@ -26,7 +32,15 @@ function isValidImageType(value: unknown): boolean {
     'nature',
     'architecture',
   ]);
-  return allowed.has(value.toLowerCase().trim());
+  return allowed.has(normalized);
+}
+
+function isTrueText(value: string): boolean {
+  return /^(doğru|evet|true|yes|d)$/i.test(value.trim());
+}
+
+function isFalseText(value: string): boolean {
+  return /^(yanlış|yanlis|hayır|hayir|false|no|y)$/i.test(value.trim());
 }
 
 function parseAiResponse(raw: string): AiQuizQuestion[] {
@@ -63,8 +77,8 @@ function parseAiResponse(raw: string): AiQuizQuestion[] {
 
     if (isTrueFalse) {
       // True/false must have exactly Doğru and Yanlış
-      const hasTrue = answers.some((a) => /doğru/i.test(a.text));
-      const hasFalse = answers.some((a) => /yanlış/i.test(a.text));
+      const hasTrue = answers.some((a) => isTrueText(a.text));
+      const hasFalse = answers.some((a) => isFalseText(a.text));
       if (!hasTrue) answers.push({ text: 'Doğru', isCorrect: !answers.some((a) => a.isCorrect) });
       if (!hasFalse) answers.push({ text: 'Yanlış', isCorrect: !answers.some((a) => a.isCorrect) });
       // Ensure exactly one correct
@@ -113,34 +127,40 @@ function parseAiResponse(raw: string): AiQuizQuestion[] {
   });
 }
 
-function resolveImages(questions: AiQuizQuestion[]): AiQuizQuestion[] {
-  return questions.map((q) => {
-    let resolved: string | undefined;
-    let resolvedType = q.imageType;
+async function resolveImages(questions: AiQuizQuestion[]): Promise<AiQuizQuestion[]> {
+  const resolved = await Promise.all(
+    questions.map(async (q) => {
+      let resolved: string | undefined;
+      let resolvedType = q.imageType;
 
-    if (q.imageType && q.imageQuery) {
-      resolved = resolveImageUrl(q.imageType, q.imageQuery);
-    }
-
-    // Fallback: infer image from question text and correct answer
-    if (!isValidImageUrl(resolved)) {
-      const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
-      const fallback = fallbackResolveImage(q.text, correctAnswer);
-      if (fallback) {
-        resolved = fallback.url;
-        resolvedType = fallback.type;
+      // 1. Önce veritabanında ara (en güvenilir kaynak)
+      if (q.imageType && q.imageQuery) {
+        try {
+          const dbImage = await imageDbService.findByKeyword(q.imageType as never, q.imageQuery);
+          if (dbImage?.url && isValidImageUrl(dbImage.url)) {
+            resolved = dbImage.url;
+            await imageDbService.incrementUsage(dbImage.id);
+          }
+        } catch { /* DB unavailable, fall through */ }
       }
-    }
 
-    const finalUrl = isValidImageUrl(resolved) ? resolved : undefined;
+      // 2. DB'de yoksa hardcoded library'de ara
+      if (!isValidImageUrl(resolved) && q.imageType && q.imageQuery) {
+        resolved = resolveImageUrl(q.imageType, q.imageQuery);
+      }
 
-    return {
-      ...q,
-      imageUrl: finalUrl,
-      imageType: finalUrl ? resolvedType : undefined,
-      imageQuery: finalUrl ? q.imageQuery || q.answers.find((a) => a.isCorrect)?.text : undefined,
-    };
-  });
+      // 3. Fallback: soru metninden ve doğru cevaptan çıkarım yap
+      if (!isValidImageUrl(resolved)) {
+        const correctAnswer = q.answers.find((a) => a.isCorrect)?.text ?? '';
+        const fallback = fallbackResolveImage(q.text, correctAnswer);
+        if (fallback) { resolved = fallback.url; resolvedType = fallback.type; }
+      }
+
+      const finalUrl = isValidImageUrl(resolved) ? resolved : undefined;
+      return { ...q, imageUrl: finalUrl, imageType: finalUrl ? resolvedType : undefined, imageQuery: finalUrl ? q.imageQuery || q.answers.find((a) => a.isCorrect)?.text : undefined };
+    }),
+  );
+  return resolved;
 }
 
 export async function generateQuiz(input: GenerateInput): Promise<GenerateResult> {
@@ -149,9 +169,9 @@ export async function generateQuiz(input: GenerateInput): Promise<GenerateResult
       ? { ...input, questionCount: Math.max(5, input.questionCount) }
       : input;
   const prompt = buildPrompt(effectiveInput);
-  const raw = await callOpenRouter(prompt, 16384);
+  const raw = await callOpenRouter(prompt, 32768);
   const questions = parseAiResponse(raw);
-  const withImages = input.includeImages ? resolveImages(questions) : questions;
+  const withImages = input.includeImages ? await resolveImages(questions) : questions;
 
   // Strip internal fields from response and discard broken/empty image URLs
   const clientQuestions = withImages.map((q) => ({

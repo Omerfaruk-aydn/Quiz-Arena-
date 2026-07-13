@@ -110,7 +110,7 @@ const MODE_PROMPT_BUILDERS: Record<GameMode, ((input: PromptInput) => string) | 
   survey: buildSurveyPrompt,
   meme_war: buildMemeWarPrompt,
   mastermind: buildMastermindPrompt,
-  drawing_battle: undefined,
+  drawing_battle: buildDrawingBattlePrompt,
 };
 
 function buildClassicPrompt(input: PromptInput): string {
@@ -367,6 +367,20 @@ KURALLAR
 - Renkler: Kırmızı, Mavi, Yeşil, Sarı, Mor, Turuncu.
 - 4 şık: renklerden biri doğru, diğerleri yanlış.
 - Açıklama dizinin mantığını kısaca açıklasın.
+- imageType="", imageQuery="".
+- Tüm içerikler Türkçe.
+
+${OUTPUT_JSON_INSTRUCTION}`;
+}
+
+function buildDrawingBattlePrompt(input: PromptInput): string {
+  return `Sen bir "Çizim Savaşı" oyunu yazarısın. ${input.questionCount} adet çizim tahmini sorusu üret.
+
+KURALLAR
+- Her soruda oyuncuların çizmesi gereken bir nesne/kavram verilir.
+- Çizim konusu 1-3 kelime arası, Türkçe ve kolayca tanınabilir olsun (örnek: elma, bisiklet, ay, uzay mekiği).
+- 4 şık: 1 doğru cevap (çizilmesi gereken nesnenin kendisi), 3 görsel olarak benzer/yakın yanlış alternatif.
+- Açıklama: "Doğru cevap [cevap] çünkü..." şeklinde kısa olsun.
 - imageType="", imageQuery="".
 - Tüm içerikler Türkçe.
 

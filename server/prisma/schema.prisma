@@ -61,6 +61,45 @@ enum GameStatus {
   finished
 }
 
+enum ImageCategory {
+  flag
+  logo
+  film
+  landmark
+  person
+  animal
+  instrument
+  artwork
+  food
+  nature
+  architecture
+  map
+}
+
+model GameImage {
+  id        String        @id @default(cuid())
+  category  ImageCategory
+  keyword   String        @db.VarChar(100)
+  url       String        @db.VarChar(500)
+  thumbnail String        @default("") @db.VarChar(500)
+  source    String        @default("") @db.VarChar(200)
+  width     Int           @default(0)
+  height    Int           @default(0)
+  tags      String[]      @default([])
+  isActive  Boolean       @default(true)
+  usageCount Int          @default(0)
+  lastUsedAt DateTime?
+  addedBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([category, keyword])
+  @@index([category])
+  @@index([keyword])
+  @@index([isActive])
+}
+
 model User {
   id                     String   @id @default(cuid())
   name                   String   @db.VarChar(60)
