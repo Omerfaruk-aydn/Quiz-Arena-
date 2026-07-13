@@ -27,6 +27,7 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().optional(),
 
   OPENROUTER_API_KEY: z.string().optional(),
+  LOGO_DEV_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

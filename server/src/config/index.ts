@@ -30,4 +30,7 @@ export const config = {
   openrouter: {
     apiKey: env.OPENROUTER_API_KEY,
   },
+  logoDev: {
+    apiKey: env.LOGO_DEV_API_KEY,
+  },
 } as const;

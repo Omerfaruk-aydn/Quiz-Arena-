@@ -12,6 +12,8 @@ import {
   NATURE_IMAGES,
   PEOPLE_IMAGES,
 } from './imageLibrary.js';
+import { LOGO_DOMAINS } from './logoDomains.js';
+import { config } from '../../config/index.js';
 import type { ImageType } from './types.js';
 
 function normalize(input: string): string {
@@ -195,12 +197,32 @@ export function resolveImageUrl(
     }
 
     case 'logo': {
+      // 1. Önce hardcoded görsel kütüphanesinde ara
       result = LOGO_IMAGES[q] || LOGO_IMAGES[cleaned] || findPartial(query, LOGO_IMAGES);
+
+      // 2. Hardcoded'ta yoksa logo.dev/clearbit ile dene
       if (!result && cleaned) {
-        // Fallback: clearbit.com'dan domain bazlı logo dene
-        const domain = cleaned.replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-        if (domain.length >= 2) {
-          result = `https://logo.clearbit.com/${domain}.com?size=256`;
+        const mappedDomain = LOGO_DOMAINS[cleaned] || LOGO_DOMAINS[q];
+        let domain = mappedDomain;
+
+        // Mapping yoksa, marka adından domain üret (basit heuristic)
+        if (!domain) {
+          const base = cleaned.replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+          if (base.length >= 2) {
+            // Türk marka olabilir → önce .com.tr dene
+            const isTurkish = /[çğıöşü]/i.test(cleaned) ||
+              ['tr', 'türk', 'turk', 'türkiye', 'turkiye'].some((t) => cleaned.includes(t));
+            domain = isTurkish ? `${base}.com.tr` : `${base}.com`;
+          }
+        }
+
+        if (domain) {
+          if (config.logoDev.apiKey) {
+            result = `https://img.logo.dev/${domain}?token=${config.logoDev.apiKey}&size=256`;
+          } else {
+            // Fallback: clearbit.com API key yoksa
+            result = `https://logo.clearbit.com/${domain}?size=256`;
+          }
         }
       }
       break;
