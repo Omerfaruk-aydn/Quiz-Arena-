@@ -13,7 +13,6 @@ interface MatchingBoardProps {
 }
 
 const LEFT_ITEMS = ['🏛️', '🔬', '📖', '🎭', '⚽', '🎨'];
-const RIGHT_ITEMS = ['Tarih', 'Bilim', 'Edebiyat', 'Tiyatro', 'Spor', 'Sanat'];
 
 export function MatchingBoard({
   questionText,
@@ -103,8 +102,13 @@ export function MatchingBoard({
               showResult && selectedAnswer === idx && correctAnswer !== idx;
 
             return (
-              <motion.div
+              <motion.button
                 key={`right-${idx}`}
+                type="button"
+                disabled={hasAnswered || showResult}
+                onClick={() => handleItemClick(idx)}
+                whileHover={!hasAnswered ? { scale: 1.03 } : undefined}
+                whileTap={!hasAnswered ? { scale: 0.97 } : undefined}
                 className={cn(
                   'flex items-center justify-center rounded-xl border-2 px-4 py-3 text-center',
                   isPaired && !showResult
@@ -117,7 +121,7 @@ export function MatchingBoard({
                 )}
               >
                 <span className="text-lg">{item.right}</span>
-              </motion.div>
+              </motion.button>
             );
           })}
         </div>

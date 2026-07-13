@@ -8,6 +8,7 @@ import { GameQuestion } from '../../components/game/GameQuestion';
 import { GameLeaderboard } from '../../components/game/GameLeaderboard';
 import { GameResults } from '../../components/game/GameResults';
 import { DrawingResults } from '../../components/game/DrawingResults';
+import { DrawingCanvas } from '../../components/game/DrawingCanvas';
 import { CountdownStart } from '../../components/game/CountdownTimer';
 import { JokerBar } from '../../components/game/JokerBar';
 import { ROUTES } from '../../lib/constants';
@@ -25,6 +26,7 @@ export function GameHostPage() {
     sendChat,
     leaveLobby,
     submitAnswer,
+    submitDrawing,
     useJoker,
     jokers,
     socket,
@@ -124,15 +126,14 @@ export function GameHostPage() {
               }}
               gameMode={store.gameMode}
             />
-            <div className="flex flex-1 flex-col items-center justify-center p-4">
-              <div className="glass p-6 text-center">
-                <p className="text-sm text-text-muted">Hedef kelime (sadece host görür)</p>
-                <p className="text-3xl font-bold text-primary">{store.currentQuestion.text}</p>
-              </div>
-              <p className="mt-4 text-sm text-text-muted">
-                Oyuncular çizimlerini gönderiyor… ({store.answeredCount}/{store.participants.length}
-                )
-              </p>
+            <div className="flex flex-1 flex-col p-4">
+              <DrawingCanvas
+                targetWord={store.currentQuestion.text}
+                timeLimit={store.timeLimit}
+                remaining={store.remainingTime}
+                disabled={store.hasAnswered}
+                onSubmit={submitDrawing}
+              />
             </div>
           </motion.div>
         )}
